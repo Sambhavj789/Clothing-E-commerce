@@ -1,0 +1,51 @@
+Single Vendor Clothing Store Ecomerce Website
+
+Users:
+1. Admin: Product Add, Product Update, Product Delete, Manage Orders,Change Settings of Website
+2. User: Search Product,Order Products,Manage Cart,Return Order,Pagination,Filter,Wishlist
+
+Others:
+Authentication + Role Based Access Control
+Notification: Nodemailer,
+
+Search: Tshirt
+
+Extras:
+AI: Input: Mujhe shirt dikhayiye party wear 
+Ouput: Products
+Payment Module
+
+Backend Folder Structure:
+backend 
+ |
+ src ----|
+        server.js (Main Entry Point of backend)
+        routes (Folder that will contain all routes files)
+        controllers (Folder that will contain handler functions)
+        models (Folder that will contain all database models/tables)
+        config (Folder that will contain all configuration files like connection to db)
+ .env (File that contains all environment varaibles, it contains varaibles which we cannot share to other users)
+
+Backend Libraries:
+mongoose (For dealing with database)
+express (For making server)
+dotenv (For accessing varaibles of .env file)
+cors (For allowing backend to accept request from out frontend)
+nodemon (For restarting server whenever code changes)
+
+Command:
+npm i express mongoose cors dotenv nodemon
+
+Task 1:
+Create structure of tables of this project db and api structure
+
+Users:
+{
+    name: String,
+    email: String,
+    password: String,
+    role: ["admin","user"]
+}
+
+/register: That will used to register user 
+/login
