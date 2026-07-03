@@ -49,3 +49,64 @@ Users:
 
 /register: That will used to register user 
 /login
+
+
+Today Class:
+Models: database tables 
+Schema
+
+User:
+{
+    name: String,
+    email: String,
+    password: String,
+    role: ["user","admin"],
+    cart: [],
+    wishlist: [],
+    address: String,
+    contactNumber: Number 
+}
+
+Product:
+{
+    title: String,
+    description: String,
+    price: Number,
+    images: [],
+    category: String,
+    subcategory: String,
+    discount: Number,
+    stock: Number,
+    features: [
+        {key: "Brand",value: "b1"},
+        {key: "Material", value: "Cotton"}
+    ],
+    variants: [
+
+    ]
+}
+
+
+Orders:
+{
+    userId: String,
+    items: [
+        {productId: String,quantity: Number, varaint: {}}
+    ],
+    orderStatus: ["pending","shipped","delivered","cancelled","returned"],
+    shippingAddress: String,
+    paymentStatus: ["pending","completed"],
+    totalOrderValue: Number,
+    paymentMode: String,
+    deliveredAt: Date
+
+}
+
+
+Routes:
+autRoutes: All routes related to Authentication
+
+POST: /register 
+POST: /login
+GET: /me 
+GET: /logout
