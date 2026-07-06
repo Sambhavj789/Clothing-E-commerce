@@ -4,10 +4,13 @@ dotenv.config();
 const cors = require("cors");
 const connectToDB = require("./config/connectToDB");
 const authRoutes = require("./routes/authRoutes");
+const cookieParser = require("cookie-parser");
+
 const app = express();
 connectToDB(); // Connect to db
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: process.env.MODE == "development" ? true : process.env.FRONTEND_URL,

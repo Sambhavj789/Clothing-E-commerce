@@ -32,9 +32,12 @@ express (For making server)
 dotenv (For accessing varaibles of .env file)
 cors (For allowing backend to accept request from out frontend)
 nodemon (For restarting server whenever code changes)
+bcrypt (For password hashing)
+jsonwebtoken (For generating token)
+cookie-parser (For handling cookie related work)
 
 Command:
-npm i express mongoose cors dotenv nodemon
+npm i express mongoose cors dotenv nodemon bcrypt jsonwebtoken cookie-parser
 
 Task 1:
 Create structure of tables of this project db and api structure
