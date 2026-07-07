@@ -113,3 +113,23 @@ POST: /register
 POST: /login
 GET: /me 
 GET: /logout
+
+categoryRoutes: All routes related to manageing category
+GET: / (Get all category)
+POST: / (Add new category)
+PUT: / (Update old category, or add subcategory inside it)
+Delete: / (Delete category)
+
+productRoutes: All routes related to products:
+GET: /all (Get all products)
+GET: /:productId : (Get single product)
+POST: /: (Add a single product)
+PUT: /: (Update product)
+DELETE: / : (Delete Product)
+
+
+orderRoutes: All routes related to order 
+GET: /all: Get all orders of a customer/user. (Only access to admin)
+GET: /user-orders: Get all orders for current login users. (User must be login)
+POST: /create : Used to create order. (User must be login)
+PUT: /update-status: Used to update order status (Only access by admin)
