@@ -35,9 +35,10 @@ nodemon (For restarting server whenever code changes)
 bcrypt (For password hashing)
 jsonwebtoken (For generating token)
 cookie-parser (For handling cookie related work)
+multer (Used to manage file uploads)
 
 Command:
-npm i express mongoose cors dotenv nodemon bcrypt jsonwebtoken cookie-parser
+npm i express mongoose cors dotenv nodemon bcrypt jsonwebtoken cookie-parser multer
 
 Task 1:
 Create structure of tables of this project db and api structure

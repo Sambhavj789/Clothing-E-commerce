@@ -3,6 +3,7 @@ const User = require("../models/userModel");
 
 async function authMiddleware(req, res, next) {
   const { token } = req.cookies;
+  
   if (!token) {
     return res
       .status(400)
