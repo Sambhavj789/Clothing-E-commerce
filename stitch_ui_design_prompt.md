@@ -1,3 +1,4 @@
+You are an experinced web designer with over 15+ years of experince in creating good and impactful designs. You are given a task of creating a full design pages of an e-commerce clothing website. Your design should include pages like home page (With header and image crousal in hero section) and some products that will be shown on hero section, products page where we have one sidebar for filter and on bottom there should be pagination block, about page, contact page, there should be one admin panel which contain dashboard where it will show some matrics about the orders count, total sale,recent orders etc, orders page where admin can see all orders, and a product page from where he can add remove and update product details, create customer my-orders page too. For reference you can use there css varaibles:
 :root {
 
   /* ===============================

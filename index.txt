@@ -134,3 +134,8 @@ GET: /all: Get all orders of a customer/user. (Only access to admin)
 GET: /user-orders: Get all orders for current login users. (User must be login)
 POST: /create : Used to create order. (User must be login)
 PUT: /update-status: Used to update order status (Only access by admin)
+
+
+
+Frontend Libraries:
+react-roter-dom (For managing routes in react)

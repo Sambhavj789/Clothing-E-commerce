@@ -6,6 +6,7 @@ const connectToDB = require("./config/connectToDB");
 const authRoutes = require("./routes/authRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const productRoutes = require("./routes/productRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -27,6 +28,7 @@ app.get("/health", (req, res) => {
 app.use("/api/v1/auth", authRoutes); // POST: http://localhost:4000/api/v1/auth/register
 app.use("/api/v1/category", categoryRoutes); // GET: http://localhost:4000/api/v1/category
 app.use("/api/v1/products", productRoutes); //POST:  http://localhost:4000/api/v1/products/
+app.use("/api/v1/orders", orderRoutes);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
