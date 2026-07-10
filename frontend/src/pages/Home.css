@@ -1,0 +1,17 @@
+.home-section {
+    padding-top: 70px;
+}
+
+.hero-image {
+    height: calc(100vh - 70px);
+    width: 100vw;
+    display: flex;
+    overflow: hidden;
+}
+
+.hero-image>img {
+    /* height: 100%; */
+    height: calc(100vh - 70px);
+    min-width: 100vw;
+    /* object-fit: cover; */
+}

@@ -139,3 +139,4 @@ PUT: /update-status: Used to update order status (Only access by admin)
 
 Frontend Libraries:
 react-roter-dom (For managing routes in react)
+react-icons (For adding icons in react)
