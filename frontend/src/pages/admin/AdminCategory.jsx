@@ -1,6 +1,8 @@
 import "./AdminCategory.css";
 import { RxCross2 } from "react-icons/rx";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import api from "../../utils/api";
 
 const categories = [
   {
@@ -27,28 +29,82 @@ const categories = [
 ];
 
 function AdminCategory() {
+  const [data, setData] = useState({
+    name: "",
+    icon: "",
+    subcategory: "",
+  });
+
+  const [categories, setCategories] = useState([]);
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setData({ ...data, [name]: value });
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const newData = { ...data, subcategory: data.subcategory.split(",") };
+    const response = await api.post("/category", newData);
+    const res = response.data;
+    if (res?.success) {
+      alert("Category Added!");
+      setIsMenuOpen(false);
+      setData({ name: "", icon: "", subcategory: "" });
+    }
+  }
+
+  async function getData() {
+    const response = await api.get("/category");
+    const res = response.data;
+    if (res?.success) {
+      console.log(res);
+      setCategories(res?.data);
+    }
+  }
+  useEffect(() => {
+    getData();
+  }, []);
+
   return (
     <section className="adminCategory">
       {/* Add Category Modal */}
 
-      {false && (
+      {isMenuOpen && (
         <div className="categoryOverlay">
           <form className="categoryForm">
             <div className="categoryHeader">
               <h2>Add Category</h2>
 
-              <RxCross2 className="closeBtn" />
+              <RxCross2
+                className="closeBtn"
+                onClick={() => setIsMenuOpen(false)}
+              />
             </div>
 
             <div className="categoryBody">
               <div className="formRow">
                 <label>Category Name</label>
-                <input type="text" placeholder="Category Name" />
+                <input
+                  type="text"
+                  placeholder="Category Name"
+                  name="name"
+                  value={data.name}
+                  onChange={handleChange}
+                />
               </div>
 
               <div className="formRow">
                 <label>Icon</label>
-                <input type="text" placeholder="🛋️ or Icon URL" />
+                <input
+                  type="text"
+                  placeholder="🛋️ or Icon URL"
+                  name="icon"
+                  value={data.icon}
+                  onChange={handleChange}
+                />
               </div>
 
               <div className="formRow">
@@ -57,10 +113,15 @@ function AdminCategory() {
                 <textarea
                   rows="5"
                   placeholder="One sub category per line"
+                  name="subcategory"
+                  value={data.subcategory}
+                  onChange={handleChange}
                 ></textarea>
               </div>
 
-              <button className="submitBtn">Add Category</button>
+              <button className="submitBtn" onClick={handleSubmit}>
+                Add Category
+              </button>
             </div>
           </form>
         </div>
@@ -71,7 +132,7 @@ function AdminCategory() {
       <div className="categoryTop">
         <h1>Categories</h1>
 
-        <button>Add Category</button>
+        <button onClick={() => setIsMenuOpen(true)}>Add Category</button>
       </div>
 
       {/* Table */}

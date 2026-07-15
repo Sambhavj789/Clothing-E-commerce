@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import "./Header.css";
 function Header() {
+  const navigate = useNavigate();
   return (
     <header>
       {/* Code for left side of header */}
@@ -10,16 +11,16 @@ function Header() {
         <nav>
           <ul>
             <li>
-              <Link to="#">Home</Link>
+              <Link to="/">Home</Link>
             </li>
             <li>
-              <Link to="#">Products</Link>
+              <Link to="/products">Products</Link>
             </li>
             <li>
-              <Link to="#">About US</Link>
+              <Link to="/about">About US</Link>
             </li>
             <li>
-              <Link to="#">Contact US</Link>
+              <Link to="/contact">Contact US</Link>
             </li>
           </ul>
         </nav>
@@ -32,7 +33,9 @@ function Header() {
           <input type="text" placeholder="Search elite collections..." />
         </div>
 
-        <button className="login-btn">Login</button>
+        <button className="login-btn" onClick={() => navigate("/login")}>
+          Login
+        </button>
       </div>
     </header>
   );

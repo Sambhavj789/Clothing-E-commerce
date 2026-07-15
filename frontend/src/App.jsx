@@ -8,6 +8,8 @@ import AdminLayout from "./layouts/AdminLayout";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminCategory from "./pages/admin/AdminCategory";
 import Cart from "./pages/Cart";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 function App() {
   const loc = window.location.pathname;
   const isAdminRoute = loc.includes("admin");
@@ -19,6 +21,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/products" element={<Products />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
 
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="products" element={<AdminProducts />} />
