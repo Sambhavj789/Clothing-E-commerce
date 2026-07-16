@@ -1,7 +1,11 @@
 const Order = require("../models/ordersModel");
 
 async function getAllOrders(req, res) {
-  const allOrders = await Order.find({});
+  const allOrders = await Order.find({}).populate([
+    { path: "userId" },
+    { path: "items.productId" },
+  ]);
+  
   return res.send({
     success: true,
     message: "Success",

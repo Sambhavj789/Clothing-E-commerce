@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import "./AdminOrders.css";
+import api from "../../utils/api";
 
 const orders = [
   {
@@ -40,6 +42,20 @@ const orders = [
 ];
 
 function AdminOrders() {
+  const [ordersData, setOrderData] = useState([]);
+  async function getData() {
+    const response = await api.get("/orders/all");
+    const res = response.data;
+    if (res?.success) {
+      console.log(res);
+      setOrderData(res.data);
+    }
+  }
+
+  useEffect(() => {
+    getData();
+  }, []);
+
   return (
     <section className="adminOrders">
       <div className="ordersHeader">
@@ -62,23 +78,23 @@ function AdminOrders() {
           </thead>
 
           <tbody>
-            {orders.map((order) => (
-              <tr key={order._id}>
-                <td>{order._id}</td>
+            {ordersData.map((order) => (
+              <tr key={order?._id}>
+                <td>{order?._id}</td>
 
-                <td>{order.createdAt}</td>
+                <td>{order?.createdAt}</td>
 
-                <td>{order.customer}</td>
+                <td>{order?.userId?.name}</td>
 
-                <td>₹ {order.totalOrderValue.toLocaleString()}</td>
+                <td>₹ {order?.items?.[0]?.productId?.price}</td>
 
-                <td>{order.paymentStatus}</td>
+                <td>{order?.paymentStatus || "Pending"}</td>
 
-                <td>{order.payementMode}</td>
+                <td>{order?.payementMode || "N/A"}</td>
 
                 <td>
-                  <span className={`status ${order.orderStatus}`}>
-                    {order.orderStatus}
+                  <span className={`status ${order?.orderStatus}`}>
+                    {order?.orderStatus}
                   </span>
                 </td>
 

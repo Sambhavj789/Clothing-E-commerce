@@ -13,8 +13,11 @@ function AdminProducts() {
     ],
     price: 10000,
   };
-  let productsData = [product];
+  let [productsData, setProductsData] = useState([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  const IMAGE_API = "http://localhost:4000/uploads/";
+
   const [data, setData] = useState({
     title: "",
     description: "",
@@ -63,8 +66,17 @@ function AdminProducts() {
       setCategories(res?.data);
     }
   }
+
+  async function getProductsData() {
+    const response = await api.get("/products/all");
+    const res = response.data;
+    if (res?.success) {
+      setProductsData(res?.data);
+    }
+  }
   useEffect(() => {
     getData();
+    getProductsData();
   }, []);
 
   return (
@@ -211,7 +223,7 @@ function AdminProducts() {
         {productsData.map((product) => (
           <div key={product?._id} className={productCSS["product-card"]}>
             <div className={productCSS["image-wrapper"]}>
-              <img src={product?.images?.[0]} alt={product?.title} />
+              <img src={IMAGE_API + product?.images?.[0]} alt={product?.title} />
 
               <button
                 type="button"
