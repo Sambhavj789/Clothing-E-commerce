@@ -6,18 +6,18 @@ const slides = [
   {
     id: 1,
     image: hero1,
-    title: "Modern Furniture Collection",
+    title: "Elevate Your Everyday Style",
     subtitle:
-      "Transform your home with premium quality furniture crafted for comfort and style.",
-    button: "Explore Collection",
+      "Discover the latest trends in men's and women's fashion with premium quality, unbeatable prices, and new arrivals every week.",
+    button: "Shop Now",
   },
   {
     id: 2,
     image: hero2,
-    title: "Luxury Interior Designs",
+    title: "New Season, New Collection",
     subtitle:
-      "Discover elegant designs that bring beauty and functionality to every room.",
-    button: "Shop Now",
+      "Upgrade your wardrobe with stylish outfits, trendy essentials, and exclusive deals designed for every occasion.",
+    button: "Explore Collection",
   },
 ];
 

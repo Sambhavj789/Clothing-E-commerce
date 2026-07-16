@@ -1,9 +1,13 @@
 import "./Login.css";
 import React, { useState } from "react";
 import api from "../utils/api";
+import { useUser } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 function Auth() {
   const [authMode, setAuthMode] = useState("register");
+  const { user, setUser } = useUser();
+  const navigate = useNavigate();
   const [data, setData] = useState({
     name: "",
     contactNumber: "",
@@ -36,6 +40,9 @@ function Auth() {
     console.log(response.data);
     if (response.data?.success) {
       alert(response.data?.message);
+      setUser(response.data?.data);
+      navigate("/products");
+      window.location.reload();
     }
   }
 

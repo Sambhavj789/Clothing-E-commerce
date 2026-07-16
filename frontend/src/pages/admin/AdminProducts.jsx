@@ -15,7 +15,7 @@ function AdminProducts() {
   };
   let [productsData, setProductsData] = useState([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
+  const [editId, setEditId] = useState(null);
   const IMAGE_API = "http://localhost:4000/uploads/";
 
   const [data, setData] = useState({
@@ -38,9 +38,11 @@ function AdminProducts() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
     const formData = new FormData();
+
     for (let key in data) {
-      if (key == "images") {
+      if (key === "images") {
         for (let image of data.images) {
           formData.append("images", image);
         }
@@ -49,12 +51,42 @@ function AdminProducts() {
       }
     }
 
-    const response = await api.post("/products", formData, {
-      headers: undefined,
-    });
-    const res = response.data;
-    if (res?.success) {
-      alert("Product Added Successfully");
+    try {
+      let response;
+
+      if (editId) {
+        formData.append("productId", editId);
+        response = await api.put(`/products`, formData, {
+          headers: undefined,
+        });
+      } else {
+        response = await api.post("/products", formData, {
+          headers: undefined,
+        });
+      }
+
+      if (response.data.success) {
+        alert(editId ? "Product Updated" : "Product Added");
+
+        setEditId(null);
+
+        setData({
+          title: "",
+          description: "",
+          price: 0,
+          discount: 0,
+          stock: 0,
+          category: "",
+          subcategory: "",
+          images: [],
+        });
+
+        setIsMenuOpen(false);
+
+        getProductsData();
+      }
+    } catch (err) {
+      console.log(err);
     }
   }
 
@@ -79,6 +111,47 @@ function AdminProducts() {
     getProductsData();
   }, []);
 
+  async function deleteProduct(id) {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this product?",
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      const response = await api.delete("/products", {
+        data: {
+          productId: id,
+        },
+      });
+
+      if (response.data.success) {
+        alert("Product Deleted Successfully");
+        getProductsData();
+      }
+    } catch (err) {
+      console.log(err);
+      alert("Error deleting product");
+    }
+  }
+
+  function editProduct(product) {
+    setEditId(product._id);
+
+    setData({
+      title: product.title,
+      description: product.description,
+      price: product.price,
+      discount: product.discount,
+      stock: product.stock,
+      category: product.category?._id || product.category,
+      subcategory: product.subcategory,
+      images: [],
+    });
+
+    setIsMenuOpen(true);
+  }
+
   return (
     <section className={style.adminProducts}>
       {isMenuOpen && (
@@ -86,7 +159,7 @@ function AdminProducts() {
           <form className={style.addProductForm}>
             {/* Header */}
             <div className={style.addProductHeader}>
-              <h1>Add Product</h1>
+              <h1>{editId ? "Update Product" : "Add Product"}</h1>
               <RxCross2
                 className={style.closeButton}
                 onClick={() => setIsMenuOpen(false)}
@@ -181,7 +254,7 @@ function AdminProducts() {
                 <input
                   type="text"
                   placeholder="Sub Category"
-                  name="subcategoyr"
+                  name="subcategory"
                   value={data.subcategory}
                   onChange={handleChange}
                 />
@@ -206,7 +279,7 @@ function AdminProducts() {
                 type="submit"
                 className={style.submitBtn}
                 onClick={handleSubmit}
-                value="Add Product"
+                value={editId ? "Update Product" : "Add Product"}
               />
             </div>
           </form>
@@ -223,17 +296,24 @@ function AdminProducts() {
         {productsData.map((product) => (
           <div key={product?._id} className={productCSS["product-card"]}>
             <div className={productCSS["image-wrapper"]}>
-              <img src={IMAGE_API + product?.images?.[0]} alt={product?.title} />
+              <img
+                src={IMAGE_API + product?.images?.[0]}
+                alt={product?.title}
+              />
 
               <button
                 type="button"
                 className={style.productDeleteBtn}
-                aria-label="Delete"
+                onClick={() => deleteProduct(product._id)}
               >
                 <AiFillDelete className={style.deleteIcon} />
               </button>
 
-              <button type="button" className={productCSS["quick-add-btn"]}>
+              <button
+                type="button"
+                className={productCSS["quick-add-btn"]}
+                onClick={() => editProduct(product)}
+              >
                 Edit
               </button>
             </div>

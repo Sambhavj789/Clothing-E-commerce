@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Header from "./components/Header";
 import Login from "./pages/Login";
@@ -25,6 +25,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
 
         <Route path="/admin" element={<AdminLayout />}>
+        <Route path="" element={<Navigate to="/admin/products"/>}/>
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="category" element={<AdminCategory />} />
