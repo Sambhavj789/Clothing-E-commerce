@@ -56,6 +56,7 @@ function AdminProducts() {
 
       if (editId) {
         formData.append("productId", editId);
+        formData.append("oldImages",[]);
         response = await api.put(`/products`, formData, {
           headers: undefined,
         });

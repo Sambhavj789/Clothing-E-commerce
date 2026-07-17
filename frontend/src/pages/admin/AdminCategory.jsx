@@ -34,6 +34,7 @@ function AdminCategory() {
     icon: "",
     subcategory: "",
   });
+  const [editId, setEditId] = useState(null);
 
   const [categories, setCategories] = useState([]);
 
@@ -46,13 +47,75 @@ function AdminCategory() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const newData = { ...data, subcategory: data.subcategory.split(",") };
-    const response = await api.post("/category", newData);
-    const res = response.data;
-    if (res?.success) {
-      alert("Category Added!");
-      setIsMenuOpen(false);
-      setData({ name: "", icon: "", subcategory: "" });
+
+    const newData = {
+      ...data,
+      categoryId: editId,
+      subcategory: data.subcategory
+        .split("\n")
+        .map((item) => item.trim())
+        .filter(Boolean),
+    };
+
+    try {
+      let response;
+
+      if (editId) {
+        response = await api.put(`/category`, newData);
+        alert("Category Updated!");
+      } else {
+        response = await api.post("/category", newData);
+        alert("Category Added!");
+      }
+
+      if (response.data.success) {
+        setIsMenuOpen(false);
+        setEditId(null);
+        setData({
+          name: "",
+          icon: "",
+          subcategory: "",
+        });
+
+        getData();
+      }
+    } catch (err) {
+      console.log(err);
+      alert("Something went wrong");
+    }
+  }
+
+  function handleEdit(category) {
+    setEditId(category._id);
+
+    setData({
+      name: category.name,
+      icon: category.icon,
+      subcategory: category.subcategory.join("\n"),
+    });
+
+    setIsMenuOpen(true);
+  }
+
+  async function handleDelete(id) {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this category?",
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      const response = await api.delete(`/category`, {
+        data: { categoryId: id },
+      });
+
+      if (response.data.success) {
+        alert("Category Deleted!");
+        getData();
+      }
+    } catch (err) {
+      console.log(err);
+      alert("Unable to delete category");
     }
   }
 
@@ -76,11 +139,19 @@ function AdminCategory() {
         <div className="categoryOverlay">
           <form className="categoryForm">
             <div className="categoryHeader">
-              <h2>Add Category</h2>
+              <h2>{editId ? "Update Category" : "Add Category"}</h2>
 
               <RxCross2
                 className="closeBtn"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setEditId(null);
+                  setData({
+                    name: "",
+                    icon: "",
+                    subcategory: "",
+                  });
+                }}
               />
             </div>
 
@@ -120,7 +191,7 @@ function AdminCategory() {
               </div>
 
               <button className="submitBtn" onClick={handleSubmit}>
-                Add Category
+                {editId ? "Update Category" : "Add Category"}
               </button>
             </div>
           </form>
@@ -132,7 +203,19 @@ function AdminCategory() {
       <div className="categoryTop">
         <h1>Categories</h1>
 
-        <button onClick={() => setIsMenuOpen(true)}>Add Category</button>
+        <button
+          onClick={() => {
+            setEditId(null);
+            setData({
+              name: "",
+              icon: "",
+              subcategory: "",
+            });
+            setIsMenuOpen(true);
+          }}
+        >
+          Add Category
+        </button>
       </div>
 
       {/* Table */}
@@ -158,14 +241,17 @@ function AdminCategory() {
 
                 <td>{cat.subcategory.join(", ")}</td>
 
-                <td>{cat.createdAt}</td>
+                <td>{new Date(cat.createdAt).toLocaleDateString("en-GB")}</td>
 
                 <td>
-                  <button className="editBtn">
+                  <button className="editBtn" onClick={() => handleEdit(cat)}>
                     <FaEdit />
                   </button>
 
-                  <button className="deleteBtn">
+                  <button
+                    className="deleteBtn"
+                    onClick={() => handleDelete(cat._id)}
+                  >
                     <FaTrash />
                   </button>
                 </td>
