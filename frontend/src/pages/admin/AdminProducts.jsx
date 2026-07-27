@@ -23,7 +23,7 @@ function AdminProducts() {
   });
 
   const [features, setFeatures] = useState([{ key: "", value: "" }]);
-  const [variants, setVariants] = useState([{ size: "", color: "", value: "" }]);
+  const [variants, setVariants] = useState([{ key: "", value: "" }]);
   const [categories, setCategories] = useState([]);
 
   function handleChange(e) {
@@ -53,7 +53,7 @@ function AdminProducts() {
   }
 
   function addVariant() {
-    setVariants([...variants, { size: "", color: "", value: "" }]);
+    setVariants([...variants, { key: "", value: "" }]);
   }
 
   function removeVariant(index) {
@@ -77,14 +77,14 @@ function AdminProducts() {
     }
 
     formData.append("features", JSON.stringify(features.filter((f) => f.key)));
-    formData.append("variant", JSON.stringify(variants.filter((v) => v.size || v.color || v.value)));
+    formData.append("variant", JSON.stringify(variants.filter((v) => v.key)));
 
     try {
       let response;
 
       if (editId) {
         formData.append("productId", editId);
-        formData.append("oldImages", data.oldImages || []);
+        formData.append("oldImages", JSON.stringify(data.oldImages || []));
         response = await api.put(`/products`, formData, {
           headers: undefined,
         });
@@ -111,7 +111,7 @@ function AdminProducts() {
           oldImages: [],
         });
         setFeatures([{ key: "", value: "" }]);
-        setVariants([{ size: "", color: "", value: "" }]);
+        setVariants([{ key: "", value: "" }]);
 
         setIsMenuOpen(false);
 
@@ -188,9 +188,18 @@ function AdminProducts() {
     }
 
     if (product.variant?.length) {
-      setVariants(product.variant);
+      const mapped = product.variant.map((v) => {
+        if (v.key !== undefined) return v;
+        const obj = { key: "", value: "" };
+        for (let k in v) {
+          if (!obj.key) obj.key = k;
+          else obj.value = v[k];
+        }
+        return obj;
+      });
+      setVariants(mapped);
     } else {
-      setVariants([{ size: "", color: "", value: "" }]);
+      setVariants([{ key: "", value: "" }]);
     }
 
     setIsMenuOpen(true);
@@ -334,24 +343,18 @@ function AdminProducts() {
               </div>
 
               <div className={`${style.formRow} ${style.section}`}>
-                <h3>Variants</h3>
+                <h3>Variants (e.g. Size: M, Color: Red)</h3>
                 {variants.map((variant, index) => (
                   <div key={index} className={style.variantRow}>
                     <input
                       type="text"
-                      placeholder="Size (e.g. M, L)"
-                      value={variant.size}
-                      onChange={(e) => handleVariantChange(index, "size", e.target.value)}
+                      placeholder="Key (e.g. Size, Color)"
+                      value={variant.key}
+                      onChange={(e) => handleVariantChange(index, "key", e.target.value)}
                     />
                     <input
                       type="text"
-                      placeholder="Color (e.g. Red)"
-                      value={variant.color}
-                      onChange={(e) => handleVariantChange(index, "color", e.target.value)}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Other value"
+                      placeholder="Value (e.g. M, Red)"
                       value={variant.value}
                       onChange={(e) => handleVariantChange(index, "value", e.target.value)}
                     />
