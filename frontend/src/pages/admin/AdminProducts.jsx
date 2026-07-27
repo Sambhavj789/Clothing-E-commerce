@@ -72,11 +72,25 @@ function AdminProducts() {
 
   const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
   const colorNameMap = {
-    red: "#EF4444", blue: "#3B82F6", green: "#22C55E", black: "#000000",
-    white: "#FFFFFF", yellow: "#EAB308", purple: "#A855F7", pink: "#EC4899",
-    orange: "#F97316", brown: "#92400E", grey: "#6B7280", gray: "#6B7280",
-    navy: "#1E3A5F", beige: "#F5F5DC", cream: "#FFFDD0", maroon: "#800000",
-    teal: "#14B8A6", gold: "#D4AF37", silver: "#C0C0C0",
+    red: "#EF4444",
+    blue: "#3B82F6",
+    green: "#22C55E",
+    black: "#000000",
+    white: "#FFFFFF",
+    yellow: "#EAB308",
+    purple: "#A855F7",
+    pink: "#EC4899",
+    orange: "#F97316",
+    brown: "#92400E",
+    grey: "#6B7280",
+    gray: "#6B7280",
+    navy: "#1E3A5F",
+    beige: "#F5F5DC",
+    cream: "#FFFDD0",
+    maroon: "#800000",
+    teal: "#14B8A6",
+    gold: "#D4AF37",
+    silver: "#C0C0C0",
   };
 
   async function handleSubmit(e) {
@@ -89,16 +103,25 @@ function AdminProducts() {
         for (let image of data.images) {
           formData.append("images", image);
         }
+      } else if (key === "oldImages") {
+        continue;
       } else {
         formData.append(key, data[key]);
       }
     }
 
+    formData.append("oldImages", JSON.stringify(data.oldImages || []));
     formData.append("features", JSON.stringify(features.filter((f) => f.key)));
     const flatVariants = variants.filter((v) => v.value);
     const sizeVariants = sizeSelected.map((s) => ({ type: "size", value: s }));
-    const colorVariants = colorSelected.map((c) => ({ type: "color", value: c }));
-    formData.append("variant", JSON.stringify([...sizeVariants, ...colorVariants, ...flatVariants]));
+    const colorVariants = colorSelected.map((c) => ({
+      type: "color",
+      value: c,
+    }));
+    formData.append(
+      "variant",
+      JSON.stringify([...sizeVariants, ...colorVariants, ...flatVariants]),
+    );
 
     try {
       let response;
@@ -206,7 +229,9 @@ function AdminProducts() {
     });
 
     if (product.images?.length) {
-      setImagePreviews(product.images.map((img) => ({ src: img, isNew: false })));
+      setImagePreviews(
+        product.images.map((img) => ({ src: img, isNew: false })),
+      );
     } else {
       setImagePreviews([]);
     }
@@ -223,7 +248,15 @@ function AdminProducts() {
 
     if (product.variant?.length) {
       product.variant.forEach((v) => {
-        const type = v.type || (v.key === "size" ? "size" : v.key === "color" ? "color" : v.key ? "custom" : "common");
+        const type =
+          v.type ||
+          (v.key === "size"
+            ? "size"
+            : v.key === "color"
+              ? "color"
+              : v.key
+                ? "custom"
+                : "common");
         if (type === "size") sizes.push(v.value || v.size);
         else if (type === "color") colors.push(v.value || v.color);
         else other.push(v);
@@ -328,13 +361,20 @@ function AdminProducts() {
               <div className={style.formRow}>
                 <label>Sub Category</label>
 
-                <input
-                  type="text"
-                  placeholder="Sub Category"
+                <select
                   name="subcategory"
                   value={data.subcategory}
                   onChange={handleChange}
-                />
+                >
+                  <option value="">Select Sub Category</option>
+                  {categories
+                    .find((c) => c._id === data.category)
+                    ?.subcategory?.map((sub, i) => (
+                      <option key={i} value={sub}>
+                        {sub}
+                      </option>
+                    ))}
+                </select>
               </div>
 
               <div className={style.formRow}>
@@ -347,7 +387,10 @@ function AdminProducts() {
                   onChange={(e) => {
                     const files = Array.from(e.target.files);
                     setData({ ...data, images: [...data.images, ...files] });
-                    const newPreviews = files.map((f) => ({ src: URL.createObjectURL(f), isNew: true }));
+                    const newPreviews = files.map((f) => ({
+                      src: URL.createObjectURL(f),
+                      isNew: true,
+                    }));
                     setImagePreviews([...imagePreviews, ...newPreviews]);
                   }}
                 />
@@ -365,16 +408,25 @@ function AdminProducts() {
                           className={style.imagePreviewRemove}
                           onClick={() => {
                             if (img.isNew) {
-                              const fileIndex = data.images.findIndex((f) => URL.createObjectURL(f) === img.src);
+                              const fileIndex = data.images.findIndex(
+                                (f) => URL.createObjectURL(f) === img.src,
+                              );
                               if (fileIndex > -1) {
                                 const updated = [...data.images];
                                 updated.splice(fileIndex, 1);
                                 setData({ ...data, images: updated });
                               }
                             } else {
-                              setData({ ...data, oldImages: data.oldImages.filter((o) => o !== img.src) });
+                              setData({
+                                ...data,
+                                oldImages: data.oldImages.filter(
+                                  (o) => o !== img.src,
+                                ),
+                              });
                             }
-                            setImagePreviews(imagePreviews.filter((_, idx) => idx !== i));
+                            setImagePreviews(
+                              imagePreviews.filter((_, idx) => idx !== i),
+                            );
                           }}
                         >
                           <RxCross2 />
@@ -393,17 +445,29 @@ function AdminProducts() {
                       type="text"
                       placeholder="Key (e.g. Material)"
                       value={feature.key}
-                      onChange={(e) => handleFeatureChange(index, "key", e.target.value)}
+                      onChange={(e) =>
+                        handleFeatureChange(index, "key", e.target.value)
+                      }
                     />
                     <input
                       type="text"
                       placeholder="Value (e.g. Cotton)"
                       value={feature.value}
-                      onChange={(e) => handleFeatureChange(index, "value", e.target.value)}
+                      onChange={(e) =>
+                        handleFeatureChange(index, "value", e.target.value)
+                      }
                     />
-                    <button type="button" onClick={addFeature}><FaPlus /></button>
+                    <button type="button" onClick={addFeature}>
+                      <FaPlus />
+                    </button>
                     {features.length > 1 && (
-                      <button type="button" onClick={() => removeFeature(index)} style={{ background: "#dc2626" }}><FaTrash /></button>
+                      <button
+                        type="button"
+                        onClick={() => removeFeature(index)}
+                        style={{ background: "#dc2626" }}
+                      >
+                        <FaTrash />
+                      </button>
                     )}
                   </div>
                 ))}
@@ -421,7 +485,11 @@ function AdminProducts() {
                           type="button"
                           className={`${style.sizeChip} ${active ? style.sizeChipActive : ""}`}
                           onClick={() => {
-                            setSizeSelected(active ? sizeSelected.filter((v) => v !== s) : [...sizeSelected, s]);
+                            setSizeSelected(
+                              active
+                                ? sizeSelected.filter((v) => v !== s)
+                                : [...sizeSelected, s],
+                            );
                           }}
                         >
                           {s}
@@ -454,7 +522,16 @@ function AdminProducts() {
                       {sizeSelected.map((s) => (
                         <span key={s} className={style.tag}>
                           {s}
-                          <button type="button" onClick={() => setSizeSelected(sizeSelected.filter((v) => v !== s))}><RxCross2 /></button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setSizeSelected(
+                                sizeSelected.filter((v) => v !== s),
+                              )
+                            }
+                          >
+                            <RxCross2 />
+                          </button>
                         </span>
                       ))}
                     </div>
@@ -474,10 +551,17 @@ function AdminProducts() {
                           type="button"
                           className={`${style.colorChip} ${active ? style.colorChipActive : ""}`}
                           onClick={() => {
-                            setColorSelected(active ? colorSelected.filter((v) => v !== name) : [...colorSelected, name]);
+                            setColorSelected(
+                              active
+                                ? colorSelected.filter((v) => v !== name)
+                                : [...colorSelected, name],
+                            );
                           }}
                         >
-                          <span className={style.colorChipDot} style={{ background: hex }} />
+                          <span
+                            className={style.colorChipDot}
+                            style={{ background: hex }}
+                          />
                           {name}
                         </button>
                       );
@@ -507,9 +591,21 @@ function AdminProducts() {
                     <div className={style.variantGroupTags}>
                       {colorSelected.map((c) => (
                         <span key={c} className={style.tag}>
-                          <span className={style.tagColorDot} style={{ background: colorNameMap[c] || c }} />
+                          <span
+                            className={style.tagColorDot}
+                            style={{ background: colorNameMap[c] || c }}
+                          />
                           {c}
-                          <button type="button" onClick={() => setColorSelected(colorSelected.filter((v) => v !== c))}><RxCross2 /></button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setColorSelected(
+                                colorSelected.filter((v) => v !== c),
+                              )
+                            }
+                          >
+                            <RxCross2 />
+                          </button>
                         </span>
                       ))}
                     </div>
@@ -519,12 +615,18 @@ function AdminProducts() {
 
               <div className={`${style.formRow} ${style.section}`}>
                 <h3>Other Variants</h3>
-                {variants.length === 0 && <p className={style.emptyHint}>No custom variants added yet</p>}
+                {variants.length === 0 && (
+                  <p className={style.emptyHint}>
+                    No custom variants added yet
+                  </p>
+                )}
                 {variants.map((variant, index) => (
                   <div key={index} className={style.variantRow}>
                     <select
                       value={variant.type}
-                      onChange={(e) => handleVariantChange(index, "type", e.target.value)}
+                      onChange={(e) =>
+                        handleVariantChange(index, "type", e.target.value)
+                      }
                       className={style.variantTypeSelect}
                     >
                       <option value="common">Common</option>
@@ -536,7 +638,9 @@ function AdminProducts() {
                         type="text"
                         placeholder="Value"
                         value={variant.value}
-                        onChange={(e) => handleVariantChange(index, "value", e.target.value)}
+                        onChange={(e) =>
+                          handleVariantChange(index, "value", e.target.value)
+                        }
                       />
                     )}
 
@@ -546,20 +650,59 @@ function AdminProducts() {
                           type="text"
                           placeholder="Key (e.g. Material)"
                           value={variant.key}
-                          onChange={(e) => handleVariantChange(index, "key", e.target.value)}
+                          onChange={(e) =>
+                            handleVariantChange(index, "key", e.target.value)
+                          }
                         />
-                        <input
-                          type="text"
-                          placeholder="Value (e.g. Cotton)"
-                          value={variant.value}
-                          onChange={(e) => handleVariantChange(index, "value", e.target.value)}
-                        />
+                        <div className={style.customValuesInput}>
+                          <div className={style.customValueTags}>
+                            {variant.value?.split(",").filter(Boolean).map((v, vi) => (
+                              <span key={vi} className={style.customTag}>
+                                {v.trim()}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const vals = variant.value.split(",").filter(Boolean);
+                                    vals.splice(vi, 1);
+                                    handleVariantChange(index, "value", vals.join(", "));
+                                  }}
+                                >
+                                  <RxCross2 />
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Type and press comma or Enter to add"
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === ",") {
+                                e.preventDefault();
+                                const input = e.target;
+                                const newVal = input.value.replace(",", "").trim();
+                                if (newVal) {
+                                  const existing = variant.value ? variant.value.split(",").map(s => s.trim()).filter(Boolean) : [];
+                                  handleVariantChange(index, "value", [...existing, newVal].join(", "));
+                                }
+                                input.value = "";
+                              }
+                            }}
+                          />
+                        </div>
                       </div>
                     )}
 
-                    <button type="button" onClick={addVariant}><FaPlus /></button>
+                    <button type="button" onClick={addVariant}>
+                      <FaPlus />
+                    </button>
                     {variants.length > 1 && (
-                      <button type="button" onClick={() => removeVariant(index)} style={{ background: "#dc2626" }}><FaTrash /></button>
+                      <button
+                        type="button"
+                        onClick={() => removeVariant(index)}
+                        style={{ background: "#dc2626" }}
+                      >
+                        <FaTrash />
+                      </button>
                     )}
                   </div>
                 ))}
@@ -606,7 +749,10 @@ function AdminProducts() {
             </div>
 
             <div className={style.adminCardActions}>
-              <button className={style.editBtn} onClick={() => editProduct(product)}>
+              <button
+                className={style.editBtn}
+                onClick={() => editProduct(product)}
+              >
                 <FaEdit /> Edit
               </button>
             </div>

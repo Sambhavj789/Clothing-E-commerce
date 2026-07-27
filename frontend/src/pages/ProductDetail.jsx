@@ -169,6 +169,23 @@ function ProductDetail() {
             <FaShoppingCart /> Add to Cart
           </button>
 
+          {(() => {
+            const otherVariants = product.variant?.filter((v) => v.type === "common" || v.type === "custom" || (!v.type && v.key));
+            return otherVariants?.length > 0 && (
+              <div className="features-section">
+                <h3>Details</h3>
+                <ul className="features-list">
+                  {otherVariants.map((v, i) => (
+                    <li key={i}>
+                      <strong>{v.type === "custom" ? v.key : "Others"}:</strong>{" "}
+                      {v.value?.split(",").map((s) => s.trim()).filter(Boolean).join(", ")}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })()}
+
           {product.features?.length > 0 && (
             <div className="features-section">
               <h3>Features</h3>
@@ -217,7 +234,7 @@ function ProductDetail() {
                             </>
                           )}
                           {v.type === "common" && v.value}
-                          {v.type === "custom" && `${v.key}: ${v.value}`}
+                          {v.type === "custom" && `${v.key}: ${v.value?.split(",").map(s => s.trim()).filter(Boolean).join(", ")}`}
                           {!v.type && (v.value || v.size || v.color)}
                         </button>
                       ))}
