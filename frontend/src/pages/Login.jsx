@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import api from "../utils/api";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function Auth() {
   const [authMode, setAuthMode] = useState("register");
@@ -28,21 +29,25 @@ function Auth() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const url = authMode == "login" ? "/auth/login" : "/auth/register";
-    const payload =
-      authMode == "login"
-        ? {
-            email: data.email,
-            password: data.password,
-          }
-        : data;
-    const response = await api.post(url, payload);
-    console.log(response.data);
-    if (response.data?.success) {
-      alert(response.data?.message);
-      setUser(response.data?.data);
-      navigate("/products");
-      window.location.reload();
+    try {
+      const url = authMode == "login" ? "/auth/login" : "/auth/register";
+      const payload =
+        authMode == "login"
+          ? {
+              email: data.email,
+              password: data.password,
+            }
+          : data;
+      const response = await api.post(url, payload);
+      if (response.data?.success) {
+        toast.success(response.data?.message);
+        setUser(response.data?.data);
+        navigate("/products");
+        window.location.reload();
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || "Something went wrong";
+      toast.error(msg);
     }
   }
 
@@ -74,7 +79,6 @@ function Auth() {
           </div>
 
           <div className="auth-tab">
-            {/* Form-header for Register  */}
             <div className="form-header">
               <h1>Join the Elite</h1>
               <p>

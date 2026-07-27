@@ -3,6 +3,7 @@ import { RxCross2 } from "react-icons/rx";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import api from "../../utils/api";
+import toast from "react-hot-toast";
 
 function AdminCategory() {
   const [data, setData] = useState({
@@ -38,10 +39,10 @@ function AdminCategory() {
 
       if (editId) {
         response = await api.put(`/category`, newData);
-        alert("Category Updated!");
+        toast.success("Category Updated!");
       } else {
         response = await api.post("/category", newData);
-        alert("Category Added!");
+        toast.success("Category Added!");
       }
 
       if (response.data.success) {
@@ -57,7 +58,7 @@ function AdminCategory() {
       }
     } catch (err) {
       console.log(err);
-      alert("Something went wrong");
+      toast.error(err.response?.data?.message || "Something went wrong");
     }
   }
 
@@ -86,12 +87,12 @@ function AdminCategory() {
       });
 
       if (response.data.success) {
-        alert("Category Deleted!");
+        toast.success("Category Deleted!");
         getData();
       }
     } catch (err) {
       console.log(err);
-      alert("Unable to delete category");
+      toast.error("Unable to delete category");
     }
   }
 

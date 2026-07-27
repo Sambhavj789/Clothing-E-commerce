@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./AdminOrders.css";
 import api from "../../utils/api";
+import toast from "react-hot-toast";
 
 const statusOptions = ["pending", "shipped", "delivered", "cancelled", "returned"];
 
@@ -23,13 +24,13 @@ function AdminOrders() {
         status: newStatus,
       });
       if (response.data.success) {
-        alert("Order status updated");
+        toast.success("Order status updated");
         getData();
         setSelectedOrder(null);
       }
     } catch (err) {
       console.log(err);
-      alert("Error updating order");
+      toast.error("Error updating order");
     }
   }
 

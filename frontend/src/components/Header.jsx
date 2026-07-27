@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaSearch, FaUserCircle, FaUserShield, FaShoppingCart } from "react-icons/fa";
 import "./Header.css";
 import { useUser } from "../context/UserContext";
+import toast from "react-hot-toast";
 
 function Header() {
   const { user, logout } = useUser();
@@ -9,7 +10,7 @@ function Header() {
   async function handleLogout() {
     const isSuccess = await logout();
     if (isSuccess) {
-      alert("Logout Successfully");
+      toast.success("Logout Successfully");
       navigate("/login")
     }
   }

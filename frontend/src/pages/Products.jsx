@@ -4,6 +4,7 @@ import api from "../utils/api";
 import productCSS from "./Products.module.css";
 import { FaRegHeart, FaShoppingCart } from "react-icons/fa";
 import { useUser } from "../context/UserContext";
+import toast from "react-hot-toast";
 
 function Product() {
   const [productData, setProductData] = useState([]);
@@ -26,7 +27,7 @@ function Product() {
         setPagination(res?.pagination);
       }
     } catch (err) {
-      alert("Error In Fetching Data!!");
+      toast.error("Error fetching products");
       console.log(err);
     }
   }
@@ -53,10 +54,11 @@ function Product() {
         variant: {},
       });
       if (response.data.success) {
-        alert("Added to cart!");
+        toast.success("Added to cart!");
       }
     } catch (err) {
-      alert("Please login to add items to cart");
+      const msg = err.response?.data?.message || "Please login to add items to cart";
+      toast.error(msg);
     }
   }
 

@@ -4,6 +4,7 @@ import { RxCross2 } from "react-icons/rx";
 import { FaPlus, FaTrash, FaEdit } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import api from "../../utils/api";
+import toast from "react-hot-toast";
 function AdminProducts() {
   let [productsData, setProductsData] = useState([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -95,7 +96,7 @@ function AdminProducts() {
       }
 
       if (response.data.success) {
-        alert(editId ? "Product Updated" : "Product Added");
+        toast.success(editId ? "Product Updated" : "Product Added");
 
         setEditId(null);
 
@@ -157,12 +158,12 @@ function AdminProducts() {
       });
 
       if (response.data.success) {
-        alert("Product Deleted Successfully");
+        toast.success("Product Deleted Successfully");
         getProductsData();
       }
     } catch (err) {
       console.log(err);
-      alert("Error deleting product");
+      toast.error("Error deleting product");
     }
   }
 

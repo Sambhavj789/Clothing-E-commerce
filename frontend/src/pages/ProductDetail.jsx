@@ -4,6 +4,7 @@ import api from "../utils/api";
 import { FaShoppingCart, FaArrowLeft, FaStar } from "react-icons/fa";
 import "./ProductDetail.css";
 import { useUser } from "../context/UserContext";
+import toast from "react-hot-toast";
 
 function ProductDetail() {
   const { id } = useParams();
@@ -37,10 +38,11 @@ function ProductDetail() {
         variant: selectedVariant,
       });
       if (response.data.success) {
-        alert("Added to cart!");
+        toast.success("Added to cart!");
       }
     } catch (err) {
-      alert("Please login to add items to cart");
+      const msg = err.response?.data?.message || "Please login to add items to cart";
+      toast.error(msg);
     }
   }
 
