@@ -10,6 +10,7 @@ async function getAllProducts(req, res) {
     limit = parseInt(req.query?.limit);
   }
   const data = await Product.find({})
+    .populate("category")
     .skip((page - 1) * limit)
     .limit(limit);
   const total = await Product.countDocuments();
@@ -30,7 +31,7 @@ async function getAllProducts(req, res) {
 // Page 4:
 async function getSingleProduct(req, res) {
   const productId = req.params.productId;
-  const productData = await Product.findById(productId);
+  const productData = await Product.findById(productId).populate("category");
   if (!productData) {
     return res.status(404).send({
       success: false,
@@ -57,6 +58,8 @@ async function addProduct(req, res) {
     features,
     variant,
   } = data;
+  const parsedFeatures = typeof features === "string" ? JSON.parse(features) : features;
+  const parsedVariant = typeof variant === "string" ? JSON.parse(variant) : variant;
   const images = req?.files?.map((file) => file.filename);
   const productData = new Product({
     title,
@@ -66,8 +69,8 @@ async function addProduct(req, res) {
     subcategory,
     discount,
     stock,
-    features,
-    variant,
+    features: parsedFeatures,
+    variant: parsedVariant,
     images,
   });
   const newProductData = await productData.save();
@@ -93,8 +96,11 @@ async function updateProduct(req, res) {
     productId,
     oldImages,
   } = data;
+  const parsedFeatures = typeof features === "string" ? JSON.parse(features) : features;
+  const parsedVariant = typeof variant === "string" ? JSON.parse(variant) : variant;
+  const parsedOldImages = typeof oldImages === "string" ? JSON.parse(oldImages) : (oldImages || []);
   const newImages = req?.files?.map((file) => file.filename);
-  const images = [...oldImages, ...newImages];
+  const images = [...parsedOldImages, ...newImages];
   const updatedProductData = await Product.findByIdAndUpdate(productId, {
     title,
     description,
@@ -103,8 +109,8 @@ async function updateProduct(req, res) {
     subcategory,
     discount,
     stock,
-    features,
-    variant,
+    features: parsedFeatures,
+    variant: parsedVariant,
     images,
   });
   return res.send({

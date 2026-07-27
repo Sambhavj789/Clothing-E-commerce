@@ -2,17 +2,10 @@ import style from "./AdminProducts.module.css";
 import productCSS from "../Products.module.css";
 import { AiFillDelete } from "react-icons/ai";
 import { RxCross2 } from "react-icons/rx";
+import { FaPlus, FaTrash } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import api from "../../utils/api";
 function AdminProducts() {
-  let product = {
-    title: "Demo Products",
-    _id: 1,
-    images: [
-      "https://pitshirts.in/cdn/shop/files/InShot-20241209_144744296.jpg?v=1755319164&width=1946",
-    ],
-    price: 10000,
-  };
   let [productsData, setProductsData] = useState([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -27,13 +20,46 @@ function AdminProducts() {
     category: "",
     subcategory: "",
     images: [],
+    oldImages: [],
   });
 
+  const [features, setFeatures] = useState([{ key: "", value: "" }]);
+  const [variants, setVariants] = useState([{ size: "", color: "", value: "" }]);
   const [categories, setCategories] = useState([]);
 
   function handleChange(e) {
     const { name, value } = e.target;
     setData({ ...data, [name]: value });
+  }
+
+  function handleFeatureChange(index, field, value) {
+    const updated = [...features];
+    updated[index][field] = value;
+    setFeatures(updated);
+  }
+
+  function addFeature() {
+    setFeatures([...features, { key: "", value: "" }]);
+  }
+
+  function removeFeature(index) {
+    if (features.length === 1) return;
+    setFeatures(features.filter((_, i) => i !== index));
+  }
+
+  function handleVariantChange(index, field, value) {
+    const updated = [...variants];
+    updated[index][field] = value;
+    setVariants(updated);
+  }
+
+  function addVariant() {
+    setVariants([...variants, { size: "", color: "", value: "" }]);
+  }
+
+  function removeVariant(index) {
+    if (variants.length === 1) return;
+    setVariants(variants.filter((_, i) => i !== index));
   }
 
   async function handleSubmit(e) {
@@ -51,12 +77,15 @@ function AdminProducts() {
       }
     }
 
+    formData.append("features", JSON.stringify(features.filter((f) => f.key)));
+    formData.append("variant", JSON.stringify(variants.filter((v) => v.size || v.color || v.value)));
+
     try {
       let response;
 
       if (editId) {
         formData.append("productId", editId);
-        formData.append("oldImages",[]);
+        formData.append("oldImages", data.oldImages || []);
         response = await api.put(`/products`, formData, {
           headers: undefined,
         });
@@ -80,7 +109,10 @@ function AdminProducts() {
           category: "",
           subcategory: "",
           images: [],
+          oldImages: [],
         });
+        setFeatures([{ key: "", value: "" }]);
+        setVariants([{ size: "", color: "", value: "" }]);
 
         setIsMenuOpen(false);
 
@@ -95,7 +127,6 @@ function AdminProducts() {
     const response = await api.get("/category");
     const res = response.data;
     if (res?.success) {
-      console.log(res);
       setCategories(res?.data);
     }
   }
@@ -148,7 +179,20 @@ function AdminProducts() {
       category: product.category?._id || product.category,
       subcategory: product.subcategory,
       images: [],
+      oldImages: product.images || [],
     });
+
+    if (product.features?.length) {
+      setFeatures(product.features);
+    } else {
+      setFeatures([{ key: "", value: "" }]);
+    }
+
+    if (product.variant?.length) {
+      setVariants(product.variant);
+    } else {
+      setVariants([{ size: "", color: "", value: "" }]);
+    }
 
     setIsMenuOpen(true);
   }
@@ -158,7 +202,6 @@ function AdminProducts() {
       {isMenuOpen && (
         <div className={style.addProductOverlay}>
           <form className={style.addProductForm}>
-            {/* Header */}
             <div className={style.addProductHeader}>
               <h1>{editId ? "Update Product" : "Add Product"}</h1>
               <RxCross2
@@ -168,7 +211,6 @@ function AdminProducts() {
             </div>
 
             <div className={style.formBody}>
-              {/* Product Name */}
               <div className={style.formRow}>
                 <label>Product Name</label>
                 <input
@@ -180,7 +222,6 @@ function AdminProducts() {
                 />
               </div>
 
-              {/* Description */}
               <div className={style.formRow}>
                 <label>Description</label>
                 <textarea
@@ -192,7 +233,6 @@ function AdminProducts() {
                 />
               </div>
 
-              {/* Price */}
               <div className={style.formRow}>
                 <label>Price</label>
                 <input
@@ -204,7 +244,6 @@ function AdminProducts() {
                 />
               </div>
 
-              {/* Discount */}
               <div className={style.formRow}>
                 <label>Discount (%)</label>
                 <input
@@ -216,7 +255,6 @@ function AdminProducts() {
                 />
               </div>
 
-              {/* Stock */}
               <div className={style.formRow}>
                 <label>Stock</label>
                 <input
@@ -228,7 +266,6 @@ function AdminProducts() {
                 />
               </div>
 
-              {/* Category */}
               <div className={style.formRow}>
                 <label>Category</label>
 
@@ -248,7 +285,6 @@ function AdminProducts() {
                 </select>
               </div>
 
-              {/* Sub Category */}
               <div className={style.formRow}>
                 <label>Sub Category</label>
 
@@ -261,7 +297,6 @@ function AdminProducts() {
                 />
               </div>
 
-              {/* Images */}
               <div className={style.formRow}>
                 <label>Product Images</label>
 
@@ -274,7 +309,60 @@ function AdminProducts() {
                   }}
                 />
               </div>
-              {/* Submit */}
+
+              <div className={`${style.formRow} ${style.section}`}>
+                <h3>Features</h3>
+                {features.map((feature, index) => (
+                  <div key={index} className={style.featureRow}>
+                    <input
+                      type="text"
+                      placeholder="Key (e.g. Material)"
+                      value={feature.key}
+                      onChange={(e) => handleFeatureChange(index, "key", e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Value (e.g. Cotton)"
+                      value={feature.value}
+                      onChange={(e) => handleFeatureChange(index, "value", e.target.value)}
+                    />
+                    <button type="button" onClick={addFeature}><FaPlus /></button>
+                    {features.length > 1 && (
+                      <button type="button" onClick={() => removeFeature(index)} style={{ background: "#dc2626" }}><FaTrash /></button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className={`${style.formRow} ${style.section}`}>
+                <h3>Variants</h3>
+                {variants.map((variant, index) => (
+                  <div key={index} className={style.variantRow}>
+                    <input
+                      type="text"
+                      placeholder="Size (e.g. M, L)"
+                      value={variant.size}
+                      onChange={(e) => handleVariantChange(index, "size", e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Color (e.g. Red)"
+                      value={variant.color}
+                      onChange={(e) => handleVariantChange(index, "color", e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Other value"
+                      value={variant.value}
+                      onChange={(e) => handleVariantChange(index, "value", e.target.value)}
+                    />
+                    <button type="button" onClick={addVariant}><FaPlus /></button>
+                    {variants.length > 1 && (
+                      <button type="button" onClick={() => removeVariant(index)} style={{ background: "#dc2626" }}><FaTrash /></button>
+                    )}
+                  </div>
+                ))}
+              </div>
 
               <input
                 type="submit"
@@ -292,7 +380,6 @@ function AdminProducts() {
         <button onClick={() => setIsMenuOpen(true)}>Add Product</button>
       </div>
 
-      {/* Products */}
       <div className={productCSS["product-grid"]}>
         {productsData.map((product) => (
           <div key={product?._id} className={productCSS["product-card"]}>

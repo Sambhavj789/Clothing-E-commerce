@@ -172,6 +172,36 @@
     color: #555;
 }
 
+.empty-cart-message {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+}
+
+.empty-cart-icon {
+    font-size: 60px;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.login-redirect-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 30px;
+    background: #252529;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.login-redirect-btn:hover {
+    background: #000;
+}
+
 /* Mobile */
 @media (width <= 1000px) {
     .cartContainer{

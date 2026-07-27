@@ -4,30 +4,6 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import api from "../../utils/api";
 
-const categories = [
-  {
-    _id: "1",
-    name: "Men",
-    icon: "👔",
-    subcategory: ["T-Shirts", "Shirts", "Jeans", "Hoodies", "Jackets"],
-    createdAt: "14 Jul 2026",
-  },
-  {
-    _id: "2",
-    name: "Women",
-    icon: "👗",
-    subcategory: ["Dresses", "Tops", "Kurtis", "Jeans", "Skirts"],
-    createdAt: "13 Jul 2026",
-  },
-  {
-    _id: "3",
-    name: "Kids",
-    icon: "🧒",
-    subcategory: ["Boys Wear", "Girls Wear", "Baby Clothing", "School Wear"],
-    createdAt: "12 Jul 2026",
-  },
-];
-
 function AdminCategory() {
   const [data, setData] = useState({
     name: "",

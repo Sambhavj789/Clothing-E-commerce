@@ -372,3 +372,37 @@ label:hover {
     color: #999999;
     padding: 0 4px;
 }
+
+.active {
+    background-color: #129c00;
+    color: #fff;
+    border-color: #129c00;
+}
+
+.cart-add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    background: #252529;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 8px;
+}
+
+.cart-add-btn:hover {
+    background: #000;
+}
+
+.product-card > a {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}

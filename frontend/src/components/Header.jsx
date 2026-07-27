@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { FaSearch, FaUserCircle, FaUserShield } from "react-icons/fa";
+import { FaSearch, FaUserCircle, FaUserShield, FaShoppingCart } from "react-icons/fa";
 import "./Header.css";
 import { useUser } from "../context/UserContext";
 
@@ -15,7 +15,6 @@ function Header() {
   }
   return (
     <header>
-      {/* Left Side */}
       <div className="header-left">
         <h1 className="header-logo">Elite Attire</h1>
 
@@ -40,12 +39,15 @@ function Header() {
         </nav>
       </div>
 
-      {/* Right Side */}
       <div className="header-right">
         <div className="search">
           <FaSearch className="search-icon" />
           <input type="text" placeholder="Search elite collections..." />
         </div>
+
+        <button className="cart-btn" onClick={() => navigate("/cart")}>
+          <FaShoppingCart />
+        </button>
 
         {!user ? (
           <button className="login-btn" onClick={() => navigate("/login")}>

@@ -29,7 +29,7 @@ async function updateCategory(req, res) {
   return res.send({
     success: true,
     message: "Category Updated Successfully",
-    data: updateCategory,
+    data: updatedCategory,
   });
 }
 

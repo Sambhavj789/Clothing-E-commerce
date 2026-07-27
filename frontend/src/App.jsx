@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Header from "./components/Header";
 import Login from "./pages/Login";
 import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminOrders from "./pages/admin/AdminOrders";
@@ -10,27 +11,37 @@ import AdminCategory from "./pages/admin/AdminCategory";
 import Cart from "./pages/Cart";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-function App() {
-  const loc = window.location.pathname;
-  const isAdminRoute = loc.includes("admin");
+
+function AppContent() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.includes("admin");
   return (
-    <BrowserRouter>
+    <>
       {!isAdminRoute && <Header />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
 
         <Route path="/admin" element={<AdminLayout />}>
-        <Route path="" element={<Navigate to="/admin/products"/>}/>
+          <Route path="" element={<Navigate to="/admin/products" />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="category" element={<AdminCategory />} />
         </Route>
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }

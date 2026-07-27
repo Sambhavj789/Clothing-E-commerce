@@ -72,6 +72,27 @@ nav>ul>li>a:hover {
     align-items: center;
 }
 
+.cart-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    font-size: 22px;
+    color: #333;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.cart-btn:hover {
+    background: #f5f5f5;
+    color: var(--accent);
+}
+
 .login-btn {
     height: 35px;
     width: 100px;
