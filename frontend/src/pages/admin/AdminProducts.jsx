@@ -31,6 +31,7 @@ function AdminProducts() {
   const [customColorInput, setCustomColorInput] = useState("");
   const [sizeSelected, setSizeSelected] = useState([]);
   const [colorSelected, setColorSelected] = useState([]);
+  const [previewIdCounter, setPreviewIdCounter] = useState(0);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -100,8 +101,8 @@ function AdminProducts() {
 
     for (let key in data) {
       if (key === "images") {
-        for (let image of data.images) {
-          formData.append("images", image);
+        for (let item of data.images) {
+          formData.append("images", item.file);
         }
       } else if (key === "oldImages") {
         continue;
@@ -128,7 +129,6 @@ function AdminProducts() {
 
       if (editId) {
         formData.append("productId", editId);
-        formData.append("oldImages", JSON.stringify(data.oldImages || []));
         response = await api.put(`/products`, formData, {
           headers: undefined,
         });
@@ -159,6 +159,7 @@ function AdminProducts() {
         setSizeSelected([]);
         setColorSelected([]);
         setImagePreviews([]);
+        setPreviewIdCounter(0);
 
         setIsMenuOpen(false);
 
@@ -386,16 +387,24 @@ function AdminProducts() {
                   accept="image/*"
                   onChange={(e) => {
                     const files = Array.from(e.target.files);
-                    setData({ ...data, images: [...data.images, ...files] });
-                    const newPreviews = files.map((f) => ({
-                      src: URL.createObjectURL(f),
-                      isNew: true,
-                    }));
-                    setImagePreviews([...imagePreviews, ...newPreviews]);
+                    setData((prev) => {
+                      let id = previewIdCounter;
+                      const items = files.map((f) => ({ id: id++, file: f }));
+                      setPreviewIdCounter(id);
+                      setImagePreviews((p) => [
+                        ...p,
+                        ...items.map((item) => ({
+                          id: item.id,
+                          src: URL.createObjectURL(item.file),
+                          isNew: true,
+                        })),
+                      ]);
+                      return { ...prev, images: [...prev.images, ...items] };
+                    });
                   }}
                 />
 
-                {imagePreviews.length > 0 && (
+                  {imagePreviews.length > 0 && (
                   <div className={style.imagePreviewGrid}>
                     {imagePreviews.map((img, i) => (
                       <div key={i} className={style.imagePreviewItem}>
@@ -408,24 +417,22 @@ function AdminProducts() {
                           className={style.imagePreviewRemove}
                           onClick={() => {
                             if (img.isNew) {
-                              const fileIndex = data.images.findIndex(
-                                (f) => URL.createObjectURL(f) === img.src,
-                              );
-                              if (fileIndex > -1) {
-                                const updated = [...data.images];
-                                updated.splice(fileIndex, 1);
-                                setData({ ...data, images: updated });
-                              }
+                              setData((prev) => ({
+                                ...prev,
+                                images: prev.images.filter(
+                                  (item) => item.id !== img.id,
+                                ),
+                              }));
                             } else {
-                              setData({
-                                ...data,
-                                oldImages: data.oldImages.filter(
+                              setData((prev) => ({
+                                ...prev,
+                                oldImages: prev.oldImages.filter(
                                   (o) => o !== img.src,
                                 ),
-                              });
+                              }));
                             }
-                            setImagePreviews(
-                              imagePreviews.filter((_, idx) => idx !== i),
+                            setImagePreviews((prev) =>
+                              prev.filter((_, idx) => idx !== i),
                             );
                           }}
                         >
