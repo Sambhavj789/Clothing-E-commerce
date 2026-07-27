@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../utils/api";
 import productCSS from "./Products.module.css";
-import { FaRegHeart } from "react-icons/fa";
+import { FaRegHeart, FaShoppingCart, FaTimes } from "react-icons/fa";
+import { useUser } from "../context/UserContext";
+import toast from "react-hot-toast";
 
 function Product() {
   const [productData, setProductData] = useState([]);
@@ -13,7 +15,61 @@ function Product() {
   const [priceRange, setPriceRange] = useState(5000);
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("recommended");
+  const [modalProduct, setModalProduct] = useState(null);
+  const [modalVariant, setModalVariant] = useState({});
+  const [modalQuantity, setModalQuantity] = useState(1);
+  const { user } = useUser();
   const IMAGE_API = "http://localhost:4000/uploads/";
+
+  const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
+  const colorNameMap = {
+    red: "#EF4444", blue: "#3B82F6", green: "#22C55E", black: "#000000",
+    white: "#FFFFFF", yellow: "#EAB308", purple: "#A855F7", pink: "#EC4899",
+    orange: "#F97316", brown: "#92400E", grey: "#6B7280", gray: "#6B7280",
+    navy: "#1E3A5F", beige: "#F5F5DC", cream: "#FFFDD0", maroon: "#800000",
+    teal: "#14B8A6", gold: "#D4AF37", silver: "#C0C0C0",
+  };
+
+  function openModal(product) {
+    setModalProduct(product);
+    setModalVariant({});
+    setModalQuantity(1);
+  }
+
+  function closeModal() {
+    setModalProduct(null);
+    setModalVariant({});
+  }
+
+  async function handleQuickAdd(product) {
+    if (product.variant?.length > 0) {
+      openModal(product);
+      return;
+    }
+    try {
+      const response = await api.post("/cart/add", { productId: product._id, quantity: 1, variant: {} });
+      if (response.data.success) toast.success("Added to cart!");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Please login to add items to cart");
+    }
+  }
+
+  async function handleModalAdd() {
+    if (!modalProduct) return;
+    try {
+      const response = await api.post("/cart/add", {
+        productId: modalProduct._id,
+        quantity: modalQuantity,
+        variant: modalVariant,
+      });
+      if (response.data.success) {
+        toast.success("Added to cart!");
+        closeModal();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Please login to add items to cart");
+    }
+  }
 
   async function getData(p = page) {
     try {
@@ -178,9 +234,13 @@ function Product() {
                     <FaRegHeart className={productCSS["heart-icon"]} />
                   </button>
 
-                  <span className={productCSS["quick-add-btn"]}>
-                    View Details
-                  </span>
+                  <button
+                    type="button"
+                    className={productCSS["quick-add-btn"]}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuickAdd(product); }}
+                  >
+                    <FaShoppingCart /> Quick Add
+                  </button>
                 </div>
 
                 <div className={productCSS["product-info"]}>
@@ -229,6 +289,77 @@ function Product() {
           </div>
         )}
       </section>
+
+      {modalProduct && (
+        <div className={productCSS.modalOverlay} onClick={closeModal}>
+          <div className={productCSS.modal} onClick={(e) => e.stopPropagation()}>
+            <button type="button" className={productCSS.modalClose} onClick={closeModal}><FaTimes /></button>
+
+            <div className={productCSS.modalBody}>
+              <div className={productCSS.modalImage}>
+                <img src={IMAGE_API + modalProduct.images?.[0]} alt={modalProduct.title} />
+              </div>
+
+              <div className={productCSS.modalInfo}>
+                <h2>{modalProduct.title}</h2>
+                <p className={productCSS.modalPrice}>
+                  ₹ {modalProduct.discount
+                    ? (modalProduct.price - (modalProduct.price * modalProduct.discount) / 100).toLocaleString()
+                    : modalProduct.price.toLocaleString()}
+                </p>
+
+                {modalProduct.variant?.length > 0 && (
+                  <div className={productCSS.modalVariants}>
+                    <h3>Select Variant</h3>
+                    <div className={productCSS.modalVariantList}>
+                      {modalProduct.variant.map((v, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          className={`${productCSS.modalVariantBtn} ${JSON.stringify(modalVariant) === JSON.stringify(v) ? productCSS.active : ""}`}
+                          onClick={() => setModalVariant(v)}
+                        >
+                          {v.type === "size" && v.value}
+                          {v.type === "color" && (
+                            <>
+                              <span
+                                className={productCSS.colorDot}
+                                style={{
+                                  background: colorNameMap[v.value?.toLowerCase()] || v.value,
+                                  border: v.value?.toLowerCase() === "white" ? "1px solid #ddd" : "none",
+                                }}
+                              />
+                              {v.value}
+                            </>
+                          )}
+                          {v.type === "common" && v.value}
+                          {v.type === "custom" && `${v.key}: ${v.value}`}
+                          {!v.type && (v.value || v.size || v.color)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className={productCSS.modalQuantity}>
+                  <button type="button" onClick={() => setModalQuantity(Math.max(1, modalQuantity - 1))}>-</button>
+                  <span>{modalQuantity}</span>
+                  <button type="button" onClick={() => setModalQuantity(modalQuantity + 1)}>+</button>
+                </div>
+
+                <button
+                  type="button"
+                  className={productCSS.modalAddBtn}
+                  onClick={handleModalAdd}
+                  disabled={modalProduct.variant?.length > 0 && Object.keys(modalVariant).length === 0}
+                >
+                  <FaShoppingCart /> Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
