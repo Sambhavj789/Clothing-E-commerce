@@ -21,7 +21,14 @@ function ProductDetail() {
     product.variant.forEach((v) => {
       const groupKey = v.type === "custom" ? v.key : (v.type || "other");
       if (!groups[groupKey]) groups[groupKey] = { label: groupKey, variants: [] };
-      groups[groupKey].variants.push(v);
+      if (v.type === "custom" || v.type === "common") {
+        const vals = (v.value || "").split(",").map((s) => s.trim()).filter(Boolean);
+        vals.forEach((val) => {
+          groups[groupKey].variants.push({ ...v, value: val });
+        });
+      } else {
+        groups[groupKey].variants.push(v);
+      }
     });
     return Object.values(groups);
   }
