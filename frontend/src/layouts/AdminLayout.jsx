@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { FaBox, FaShoppingCart, FaTags, FaSignOutAlt, FaTachometerAlt, FaBars, FaTimes } from "react-icons/fa";
+import { FaBox, FaShoppingCart, FaTags, FaSignOutAlt, FaBars, FaTimes } from "react-icons/fa";
 import { useState } from "react";
 import style from "./AdminLayout.module.css";
 import { useUser } from "../context/UserContext";
@@ -23,11 +23,14 @@ function AdminLayout() {
     }
   }
 
+  const userInitial = user?.name?.charAt(0)?.toUpperCase() || "A";
+
   return (
     <section className={`${style.adminLayout} ${!sidebarOpen ? style.collapsed : ""}`}>
       <div className={`${style.adminSidebar} ${!sidebarOpen ? style.sidebarCollapsed : ""}`}>
         <div className={style.sidebarHeader}>
-          <h2 className={style.sidebarTitle}>Elite Attire</h2>
+          <div className={style.sidebarLogo}>EA</div>
+          <span className={style.sidebarTitleText}>Elite Attire</span>
           <button className={style.toggleBtn} onClick={() => setSidebarOpen(!sidebarOpen)}>
             {sidebarOpen ? <FaTimes /> : <FaBars />}
           </button>
@@ -48,10 +51,11 @@ function AdminLayout() {
 
         <div className={style.sidebarFooter}>
           <div className={style.adminInfo}>
-            <span className={style.adminName}>{user?.name || "Admin"}</span>
+            <div className={style.adminAvatar}>{userInitial}</div>
+            <span className={style.adminNameText}>{user?.name || "Admin"}</span>
           </div>
           <button className={style.logoutBtn} onClick={handleLogout}>
-            <FaSignOutAlt /> Logout
+            <FaSignOutAlt /> <span>Logout</span>
           </button>
         </div>
       </div>

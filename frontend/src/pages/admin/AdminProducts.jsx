@@ -1,8 +1,7 @@
 import style from "./AdminProducts.module.css";
-import productCSS from "../Products.module.css";
 import { AiFillDelete } from "react-icons/ai";
 import { RxCross2 } from "react-icons/rx";
-import { FaPlus, FaTrash } from "react-icons/fa";
+import { FaPlus, FaTrash, FaEdit } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import api from "../../utils/api";
 function AdminProducts() {
@@ -380,37 +379,34 @@ function AdminProducts() {
         <button onClick={() => setIsMenuOpen(true)}>Add Product</button>
       </div>
 
-      <div className={productCSS["product-grid"]}>
+      <div className={style.adminProductGrid}>
         {productsData.map((product) => (
-          <div key={product?._id} className={productCSS["product-card"]}>
-            <div className={productCSS["image-wrapper"]}>
+          <div key={product?._id} className={style.adminCard}>
+            <div className={style.adminCardImage}>
               <img
                 src={IMAGE_API + product?.images?.[0]}
                 alt={product?.title}
               />
-
               <button
                 type="button"
                 className={style.productDeleteBtn}
                 onClick={() => deleteProduct(product._id)}
               >
-                <AiFillDelete className={style.deleteIcon} />
-              </button>
-
-              <button
-                type="button"
-                className={productCSS["quick-add-btn"]}
-                onClick={() => editProduct(product)}
-              >
-                Edit
+                <AiFillDelete />
               </button>
             </div>
 
-            <div className={productCSS["product-info"]}>
-              <h2 className={productCSS["product-title"]}>{product?.title}</h2>
-              <p className={productCSS["product-price"]}>
+            <div className={style.adminCardInfo}>
+              <h3 className={style.adminCardTitle}>{product?.title}</h3>
+              <p className={style.adminCardPrice}>
                 ₹ {product.price.toLocaleString()}
               </p>
+            </div>
+
+            <div className={style.adminCardActions}>
+              <button className={style.editBtn} onClick={() => editProduct(product)}>
+                <FaEdit /> Edit
+              </button>
             </div>
           </div>
         ))}
