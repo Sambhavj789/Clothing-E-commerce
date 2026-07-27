@@ -234,13 +234,9 @@ function Product() {
                     <FaRegHeart className={productCSS["heart-icon"]} />
                   </button>
 
-                  <button
-                    type="button"
-                    className={productCSS["quick-add-btn"]}
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuickAdd(product); }}
-                  >
-                    <FaShoppingCart /> Quick Add
-                  </button>
+                  <span className={productCSS["quick-add-btn"]}>
+                    View Details
+                  </span>
                 </div>
 
                 <div className={productCSS["product-info"]}>
@@ -252,6 +248,13 @@ function Product() {
                   </p>
                 </div>
               </Link>
+              <button
+                type="button"
+                className={productCSS["cart-add-btn"]}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuickAdd(product); }}
+              >
+                <FaShoppingCart /> Add to Cart
+              </button>
             </div>
           ))}
         </div>
