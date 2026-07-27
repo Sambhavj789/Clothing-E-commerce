@@ -24,7 +24,7 @@ function AdminProducts() {
   });
 
   const [features, setFeatures] = useState([{ key: "", value: "" }]);
-  const [variants, setVariants] = useState([]);
+  const [otherVariants, setOtherVariants] = useState([{ key: "", values: [] }]);
   const [categories, setCategories] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [customSizeInput, setCustomSizeInput] = useState("");
@@ -32,6 +32,34 @@ function AdminProducts() {
   const [sizeSelected, setSizeSelected] = useState([]);
   const [colorSelected, setColorSelected] = useState([]);
   const [previewIdCounter, setPreviewIdCounter] = useState(0);
+
+  function handleOtherKeyChange(index, value) {
+    const updated = [...otherVariants];
+    updated[index].key = value;
+    setOtherVariants(updated);
+  }
+
+  function addOtherValue(index, val) {
+    const updated = [...otherVariants];
+    if (!updated[index].values.includes(val)) {
+      updated[index].values.push(val);
+      setOtherVariants(updated);
+    }
+  }
+
+  function removeOtherValue(vIndex, valIndex) {
+    const updated = [...otherVariants];
+    updated[vIndex].values.splice(valIndex, 1);
+    setOtherVariants(updated);
+  }
+
+  function addOtherVariant() {
+    setOtherVariants([...otherVariants, { key: "", values: [] }]);
+  }
+
+  function removeOtherVariant(index) {
+    setOtherVariants(otherVariants.filter((_, i) => i !== index));
+  }
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -51,24 +79,6 @@ function AdminProducts() {
   function removeFeature(index) {
     if (features.length === 1) return;
     setFeatures(features.filter((_, i) => i !== index));
-  }
-
-  function handleVariantChange(index, field, value) {
-    const updated = [...variants];
-    updated[index][field] = value;
-    if (field === "type" && value !== "custom") {
-      updated[index].key = "";
-    }
-    setVariants(updated);
-  }
-
-  function addVariant() {
-    setVariants([...variants, { type: "common", value: "" }]);
-  }
-
-  function removeVariant(index) {
-    if (variants.length === 1) return;
-    setVariants(variants.filter((_, i) => i !== index));
   }
 
   const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
@@ -113,15 +123,17 @@ function AdminProducts() {
 
     formData.append("oldImages", JSON.stringify(data.oldImages || []));
     formData.append("features", JSON.stringify(features.filter((f) => f.key)));
-    const flatVariants = variants.filter((v) => v.value);
     const sizeVariants = sizeSelected.map((s) => ({ type: "size", value: s }));
     const colorVariants = colorSelected.map((c) => ({
       type: "color",
       value: c,
     }));
+    const otherVariantEntries = otherVariants
+      .filter((ov) => ov.key && ov.values.length > 0)
+      .map((ov) => ({ type: "custom", key: ov.key, value: ov.values.join(", ") }));
     formData.append(
       "variant",
-      JSON.stringify([...sizeVariants, ...colorVariants, ...flatVariants]),
+      JSON.stringify([...sizeVariants, ...colorVariants, ...otherVariantEntries]),
     );
 
     try {
@@ -155,7 +167,7 @@ function AdminProducts() {
           oldImages: [],
         });
         setFeatures([{ key: "", value: "" }]);
-        setVariants([]);
+        setOtherVariants([{ key: "", values: [] }]);
         setSizeSelected([]);
         setColorSelected([]);
         setImagePreviews([]);
@@ -245,7 +257,7 @@ function AdminProducts() {
 
     const sizes = [];
     const colors = [];
-    const other = [];
+    const otherMap = {};
 
     if (product.variant?.length) {
       product.variant.forEach((v) => {
@@ -260,13 +272,17 @@ function AdminProducts() {
                 : "common");
         if (type === "size") sizes.push(v.value || v.size);
         else if (type === "color") colors.push(v.value || v.color);
-        else other.push(v);
+        else if (type === "custom" && v.key) {
+          if (!otherMap[v.key]) otherMap[v.key] = [];
+          const vals = (v.value || "").split(",").map((s) => s.trim()).filter(Boolean);
+          vals.forEach((val) => { if (!otherMap[v.key].includes(val)) otherMap[v.key].push(val); });
+        }
       });
     }
 
     setSizeSelected(sizes);
     setColorSelected(colors);
-    setVariants(other);
+    setOtherVariants(otherArr.length > 0 ? otherArr : [{ key: "", values: [] }]);
 
     setIsMenuOpen(true);
   }
@@ -348,7 +364,7 @@ function AdminProducts() {
                   value={data.category}
                   onChange={handleChange}
                 >
-                  <option>Select Category</option>
+                  <option value="" hidden>Select Category</option>
                   {categories.map((category) => {
                     return (
                       <option value={category._id} key={category._id}>
@@ -367,7 +383,7 @@ function AdminProducts() {
                   value={data.subcategory}
                   onChange={handleChange}
                 >
-                  <option value="">Select Sub Category</option>
+                  <option value="" hidden>Select Sub Category</option>
                   {categories
                     .find((c) => c._id === data.category)
                     ?.subcategory?.map((sub, i) => (
@@ -622,97 +638,61 @@ function AdminProducts() {
 
               <div className={`${style.formRow} ${style.section}`}>
                 <h3>Other Variants</h3>
-                {variants.length === 0 && (
-                  <p className={style.emptyHint}>
-                    No custom variants added yet
-                  </p>
-                )}
-                {variants.map((variant, index) => (
-                  <div key={index} className={style.variantRow}>
-                    <select
-                      value={variant.type}
-                      onChange={(e) =>
-                        handleVariantChange(index, "type", e.target.value)
-                      }
-                      className={style.variantTypeSelect}
-                    >
-                      <option value="common">Common</option>
-                      <option value="custom">Custom</option>
-                    </select>
-
-                    {variant.type === "common" && (
+                {otherVariants.map((ov, vi) => (
+                  <div key={vi} className={style.otherVariantGroup}>
+                    <div className={style.otherVariantHeader}>
                       <input
                         type="text"
-                        placeholder="Value"
-                        value={variant.value}
-                        onChange={(e) =>
-                          handleVariantChange(index, "value", e.target.value)
-                        }
+                        placeholder="Variant name (e.g. Material, Style)"
+                        value={ov.key}
+                        onChange={(e) => handleOtherKeyChange(vi, e.target.value)}
                       />
-                    )}
-
-                    {variant.type === "custom" && (
-                      <div className={style.customRow}>
-                        <input
-                          type="text"
-                          placeholder="Key (e.g. Material)"
-                          value={variant.key}
-                          onChange={(e) =>
-                            handleVariantChange(index, "key", e.target.value)
-                          }
-                        />
-                        <div className={style.customValuesInput}>
-                          <div className={style.customValueTags}>
-                            {variant.value?.split(",").filter(Boolean).map((v, vi) => (
-                              <span key={vi} className={style.customTag}>
-                                {v.trim()}
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const vals = variant.value.split(",").filter(Boolean);
-                                    vals.splice(vi, 1);
-                                    handleVariantChange(index, "value", vals.join(", "));
-                                  }}
-                                >
-                                  <RxCross2 />
-                                </button>
-                              </span>
-                            ))}
-                          </div>
-                          <input
-                            type="text"
-                            placeholder="Type and press comma or Enter to add"
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === ",") {
-                                e.preventDefault();
-                                const input = e.target;
-                                const newVal = input.value.replace(",", "").trim();
-                                if (newVal) {
-                                  const existing = variant.value ? variant.value.split(",").map(s => s.trim()).filter(Boolean) : [];
-                                  handleVariantChange(index, "value", [...existing, newVal].join(", "));
-                                }
-                                input.value = "";
-                              }
-                            }}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    <button type="button" onClick={addVariant}>
-                      <FaPlus />
-                    </button>
-                    {variants.length > 1 && (
                       <button
                         type="button"
-                        onClick={() => removeVariant(index)}
-                        style={{ background: "#dc2626" }}
+                        className={style.otherRemoveBtn}
+                        onClick={() => removeOtherVariant(vi)}
                       >
                         <FaTrash />
                       </button>
-                    )}
+                    </div>
+
+                    <div className={style.otherValueTags}>
+                      {ov.values.map((val, valIndex) => (
+                        <span key={valIndex} className={style.customTag}>
+                          {val}
+                          <button
+                            type="button"
+                            onClick={() => removeOtherValue(vi, valIndex)}
+                          >
+                            <RxCross2 />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className={style.otherValueInput}>
+                      <input
+                        type="text"
+                        placeholder="Type a value and press Enter to add"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const input = e.target;
+                            const val = input.value.trim();
+                            if (val) {
+                              addOtherValue(vi, val);
+                              input.value = "";
+                            }
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 ))}
+
+                <button type="button" className={style.addOtherBtn} onClick={addOtherVariant}>
+                  <FaPlus /> Add Another Variant
+                </button>
               </div>
 
               <input
