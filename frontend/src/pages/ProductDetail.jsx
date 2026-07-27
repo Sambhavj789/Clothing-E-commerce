@@ -129,6 +129,42 @@ function ProductDetail() {
             <p className="out-of-stock">Out of Stock</p>
           )}
 
+          {product.variant?.length > 0 && (
+            <div className="detail-variants-preview">
+              {(() => {
+                const sizes = product.variant.filter((v) => v.type === "size");
+                const colors = product.variant.filter((v) => v.type === "color");
+                return (
+                  <>
+                    {sizes.length > 0 && (
+                      <div className="detail-variant-group">
+                        <span className="detail-variant-label">Sizes:</span>
+                        <div className="detail-variant-badges">
+                          {sizes.map((v, i) => (
+                            <span key={i} className="badge-size">{v.value}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {colors.length > 0 && (
+                      <div className="detail-variant-group">
+                        <span className="detail-variant-label">Colors:</span>
+                        <div className="detail-variant-badges">
+                          {colors.map((v, i) => (
+                            <span key={i} className="badge-color">
+                              <span className="badge-color-dot" style={{ background: colorNameMap[v.value?.toLowerCase()] || v.value }} />
+                              {v.value}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          )}
+
           <button className="add-to-cart-btn" onClick={openModal} disabled={product.stock === 0}>
             <FaShoppingCart /> Add to Cart
           </button>

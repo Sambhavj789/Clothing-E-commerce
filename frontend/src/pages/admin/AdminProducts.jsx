@@ -24,8 +24,13 @@ function AdminProducts() {
   });
 
   const [features, setFeatures] = useState([{ key: "", value: "" }]);
-  const [variants, setVariants] = useState([{ type: "size", value: "" }]);
+  const [variants, setVariants] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [customSizeInput, setCustomSizeInput] = useState("");
+  const [customColorInput, setCustomColorInput] = useState("");
+  const [sizeSelected, setSizeSelected] = useState([]);
+  const [colorSelected, setColorSelected] = useState([]);
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -57,7 +62,7 @@ function AdminProducts() {
   }
 
   function addVariant() {
-    setVariants([...variants, { type: "size", value: "" }]);
+    setVariants([...variants, { type: "common", value: "" }]);
   }
 
   function removeVariant(index) {
@@ -90,7 +95,10 @@ function AdminProducts() {
     }
 
     formData.append("features", JSON.stringify(features.filter((f) => f.key)));
-    formData.append("variant", JSON.stringify(variants.filter((v) => v.value)));
+    const flatVariants = variants.filter((v) => v.value);
+    const sizeVariants = sizeSelected.map((s) => ({ type: "size", value: s }));
+    const colorVariants = colorSelected.map((c) => ({ type: "color", value: c }));
+    formData.append("variant", JSON.stringify([...sizeVariants, ...colorVariants, ...flatVariants]));
 
     try {
       let response;
@@ -124,7 +132,10 @@ function AdminProducts() {
           oldImages: [],
         });
         setFeatures([{ key: "", value: "" }]);
-        setVariants([{ type: "size", value: "" }]);
+        setVariants([]);
+        setSizeSelected([]);
+        setColorSelected([]);
+        setImagePreviews([]);
 
         setIsMenuOpen(false);
 
@@ -194,22 +205,34 @@ function AdminProducts() {
       oldImages: product.images || [],
     });
 
+    if (product.images?.length) {
+      setImagePreviews(product.images.map((img) => ({ src: img, isNew: false })));
+    } else {
+      setImagePreviews([]);
+    }
+
     if (product.features?.length) {
       setFeatures(product.features);
     } else {
       setFeatures([{ key: "", value: "" }]);
     }
 
+    const sizes = [];
+    const colors = [];
+    const other = [];
+
     if (product.variant?.length) {
-      const mapped = product.variant.map((v) => {
-        if (v.type) return v;
-        const hasKey = v.key && v.key !== "size" && v.key !== "color";
-        return { type: hasKey ? "custom" : (v.key || "common"), key: hasKey ? v.key : "", value: v.value || v.size || v.color || "" };
+      product.variant.forEach((v) => {
+        const type = v.type || (v.key === "size" ? "size" : v.key === "color" ? "color" : v.key ? "custom" : "common");
+        if (type === "size") sizes.push(v.value || v.size);
+        else if (type === "color") colors.push(v.value || v.color);
+        else other.push(v);
       });
-      setVariants(mapped);
-    } else {
-      setVariants([{ type: "size", value: "" }]);
     }
+
+    setSizeSelected(sizes);
+    setColorSelected(colors);
+    setVariants(other);
 
     setIsMenuOpen(true);
   }
@@ -322,9 +345,44 @@ function AdminProducts() {
                   multiple
                   accept="image/*"
                   onChange={(e) => {
-                    setData({ ...data, images: e.target.files });
+                    const files = Array.from(e.target.files);
+                    setData({ ...data, images: [...data.images, ...files] });
+                    const newPreviews = files.map((f) => ({ src: URL.createObjectURL(f), isNew: true }));
+                    setImagePreviews([...imagePreviews, ...newPreviews]);
                   }}
                 />
+
+                {imagePreviews.length > 0 && (
+                  <div className={style.imagePreviewGrid}>
+                    {imagePreviews.map((img, i) => (
+                      <div key={i} className={style.imagePreviewItem}>
+                        <img
+                          src={img.isNew ? img.src : IMAGE_API + img.src}
+                          alt=""
+                        />
+                        <button
+                          type="button"
+                          className={style.imagePreviewRemove}
+                          onClick={() => {
+                            if (img.isNew) {
+                              const fileIndex = data.images.findIndex((f) => URL.createObjectURL(f) === img.src);
+                              if (fileIndex > -1) {
+                                const updated = [...data.images];
+                                updated.splice(fileIndex, 1);
+                                setData({ ...data, images: updated });
+                              }
+                            } else {
+                              setData({ ...data, oldImages: data.oldImages.filter((o) => o !== img.src) });
+                            }
+                            setImagePreviews(imagePreviews.filter((_, idx) => idx !== i));
+                          }}
+                        >
+                          <RxCross2 />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className={`${style.formRow} ${style.section}`}>
@@ -352,7 +410,116 @@ function AdminProducts() {
               </div>
 
               <div className={`${style.formRow} ${style.section}`}>
-                <h3>Variants</h3>
+                <h3>Sizes</h3>
+                <div className={style.variantGroup}>
+                  <div className={style.variantGroupChips}>
+                    {sizeOptions.map((s) => {
+                      const active = sizeSelected.includes(s);
+                      return (
+                        <button
+                          key={s}
+                          type="button"
+                          className={`${style.sizeChip} ${active ? style.sizeChipActive : ""}`}
+                          onClick={() => {
+                            setSizeSelected(active ? sizeSelected.filter((v) => v !== s) : [...sizeSelected, s]);
+                          }}
+                        >
+                          {s}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className={style.variantGroupAdd}>
+                    <input
+                      type="text"
+                      placeholder="Custom size"
+                      value={customSizeInput}
+                      onChange={(e) => setCustomSizeInput(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const val = customSizeInput.trim().toUpperCase();
+                        if (val && !sizeSelected.includes(val)) {
+                          setSizeSelected([...sizeSelected, val]);
+                          setCustomSizeInput("");
+                        }
+                      }}
+                    >
+                      Add
+                    </button>
+                  </div>
+                  {sizeSelected.length > 0 && (
+                    <div className={style.variantGroupTags}>
+                      {sizeSelected.map((s) => (
+                        <span key={s} className={style.tag}>
+                          {s}
+                          <button type="button" onClick={() => setSizeSelected(sizeSelected.filter((v) => v !== s))}><RxCross2 /></button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className={`${style.formRow} ${style.section}`}>
+                <h3>Colors</h3>
+                <div className={style.variantGroup}>
+                  <div className={style.variantGroupChips}>
+                    {Object.entries(colorNameMap).map(([name, hex]) => {
+                      const active = colorSelected.includes(name);
+                      return (
+                        <button
+                          key={name}
+                          type="button"
+                          className={`${style.colorChip} ${active ? style.colorChipActive : ""}`}
+                          onClick={() => {
+                            setColorSelected(active ? colorSelected.filter((v) => v !== name) : [...colorSelected, name]);
+                          }}
+                        >
+                          <span className={style.colorChipDot} style={{ background: hex }} />
+                          {name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className={style.variantGroupAdd}>
+                    <input
+                      type="text"
+                      placeholder="Custom color"
+                      value={customColorInput}
+                      onChange={(e) => setCustomColorInput(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const val = customColorInput.trim().toLowerCase();
+                        if (val && !colorSelected.includes(val)) {
+                          setColorSelected([...colorSelected, val]);
+                          setCustomColorInput("");
+                        }
+                      }}
+                    >
+                      Add
+                    </button>
+                  </div>
+                  {colorSelected.length > 0 && (
+                    <div className={style.variantGroupTags}>
+                      {colorSelected.map((c) => (
+                        <span key={c} className={style.tag}>
+                          <span className={style.tagColorDot} style={{ background: colorNameMap[c] || c }} />
+                          {c}
+                          <button type="button" onClick={() => setColorSelected(colorSelected.filter((v) => v !== c))}><RxCross2 /></button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className={`${style.formRow} ${style.section}`}>
+                <h3>Other Variants</h3>
+                {variants.length === 0 && <p className={style.emptyHint}>No custom variants added yet</p>}
                 {variants.map((variant, index) => (
                   <div key={index} className={style.variantRow}>
                     <select
@@ -360,46 +527,9 @@ function AdminProducts() {
                       onChange={(e) => handleVariantChange(index, "type", e.target.value)}
                       className={style.variantTypeSelect}
                     >
-                      <option value="size">Size</option>
-                      <option value="color">Color</option>
                       <option value="common">Common</option>
                       <option value="custom">Custom</option>
                     </select>
-
-                    {variant.type === "size" && (
-                      <div className={style.sizeChips}>
-                        {sizeOptions.map((s) => (
-                          <button
-                            key={s}
-                            type="button"
-                            className={`${style.sizeChip} ${variant.value === s ? style.sizeChipActive : ""}`}
-                            onClick={() => handleVariantChange(index, "value", s)}
-                          >
-                            {s}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {variant.type === "color" && (
-                      <div className={style.colorInputRow}>
-                        <input
-                          type="text"
-                          placeholder="Color name (e.g. Red)"
-                          value={variant.value}
-                          onChange={(e) => handleVariantChange(index, "value", e.target.value)}
-                        />
-                        {variant.value && (
-                          <span
-                            className={style.colorSwatch}
-                            style={{
-                              background: colorNameMap[variant.value.toLowerCase()] || variant.value,
-                              border: variant.value.toLowerCase() === "white" ? "1px solid #ddd" : "none",
-                            }}
-                          />
-                        )}
-                      </div>
-                    )}
 
                     {variant.type === "common" && (
                       <input

@@ -137,6 +137,70 @@
   font-weight: 600;
 }
 
+.detail-variants-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-variant-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.detail-variant-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 50px;
+}
+
+.detail-variant-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge-size {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 32px;
+  padding: 0 10px;
+  background: #f5f5f5;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #252529;
+}
+
+.badge-color {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: #f5f5f5;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #252529;
+  text-transform: capitalize;
+}
+
+.badge-color-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
 .add-to-cart-btn {
   display: flex;
   align-items: center;
