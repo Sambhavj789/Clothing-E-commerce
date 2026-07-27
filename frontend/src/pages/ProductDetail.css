@@ -346,6 +346,20 @@
     margin: 0 0 8px;
 }
 
+.detail-modal-variant-group {
+    margin-bottom: 12px;
+}
+
+.detail-modal-variant-group-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+    margin-bottom: 6px;
+}
+
 .detail-modal-variant-list {
     display: flex;
     gap: 8px;

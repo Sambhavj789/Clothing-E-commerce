@@ -98,12 +98,23 @@ function Cart() {
 
                 <div className="cartInfo">
                   <h3>{item.productId?.title || "Product"}</h3>
-                  {item.variant?.type === "size" && <p>Size: {item.variant.value}</p>}
-                  {item.variant?.type === "color" && <p>Color: {item.variant.value}</p>}
-                  {item.variant?.type === "custom" && <p>{item.variant.key}: {item.variant.value}</p>}
-                  {item.variant?.type === "common" && <p>{item.variant.value}</p>}
-                  {!item.variant?.type && item.variant?.size && <p>Size: {item.variant.size}</p>}
-                  {!item.variant?.type && item.variant?.color && <p>Color: {item.variant.color}</p>}
+                  {Array.isArray(item.variant) ? item.variant.map((v, vi) => (
+                    <p key={vi}>
+                      {v.type === "size" ? `Size: ${v.value}` : ""}
+                      {v.type === "color" ? `Color: ${v.value}` : ""}
+                      {v.type === "custom" ? `${v.key}: ${v.value}` : ""}
+                      {v.type === "common" ? v.value : ""}
+                    </p>
+                  )) : (
+                    <>
+                      {item.variant?.type === "size" && <p>Size: {item.variant.value}</p>}
+                      {item.variant?.type === "color" && <p>Color: {item.variant.value}</p>}
+                      {item.variant?.type === "custom" && <p>{item.variant.key}: {item.variant.value}</p>}
+                      {item.variant?.type === "common" && <p>{item.variant.value}</p>}
+                      {!item.variant?.type && item.variant?.size && <p>Size: {item.variant.size}</p>}
+                      {!item.variant?.type && item.variant?.color && <p>Color: {item.variant.color}</p>}
+                    </>
+                  )}
                   <p className="price">
                     ₹ {(item.productId?.price || 0).toLocaleString()}
                   </p>

@@ -11,9 +11,23 @@ function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [showModal, setShowModal] = useState(false);
-  const [modalVariant, setModalVariant] = useState({});
+  const [modalSelections, setModalSelections] = useState({});
   const [modalQuantity, setModalQuantity] = useState(1);
   const IMAGE_API = "http://localhost:4000/uploads/";
+
+  function getVariantGroups() {
+    if (!product?.variant) return [];
+    const groups = {};
+    product.variant.forEach((v) => {
+      const groupKey = v.type === "custom" ? v.key : (v.type || "other");
+      if (!groups[groupKey]) groups[groupKey] = { label: groupKey, variants: [] };
+      groups[groupKey].variants.push(v);
+    });
+    return Object.values(groups);
+  }
+
+  const variantGroups = getVariantGroups();
+  const allGroupsSelected = variantGroups.length > 0 && variantGroups.every((g) => modalSelections[g.label]);
 
   const colorNameMap = {
     red: "#EF4444", blue: "#3B82F6", green: "#22C55E", black: "#000000",
@@ -38,7 +52,7 @@ function ProductDetail() {
   }
 
   function openModal() {
-    setModalVariant({});
+    setModalSelections({});
     setModalQuantity(1);
     setShowModal(true);
   }
@@ -49,10 +63,11 @@ function ProductDetail() {
 
   async function handleAddToCart() {
     try {
+      const selectedVariants = Object.values(modalSelections);
       const response = await api.post("/cart/add", {
         productId: id,
         quantity: modalQuantity,
-        variant: modalVariant,
+        variant: selectedVariants,
       });
       if (response.data.success) {
         toast.success("Added to cart!");
@@ -129,62 +144,33 @@ function ProductDetail() {
             <p className="out-of-stock">Out of Stock</p>
           )}
 
-          {product.variant?.length > 0 && (
+          {variantGroups.length > 0 && (
             <div className="detail-variants-preview">
-              {(() => {
-                const sizes = product.variant.filter((v) => v.type === "size");
-                const colors = product.variant.filter((v) => v.type === "color");
-                return (
-                  <>
-                    {sizes.length > 0 && (
-                      <div className="detail-variant-group">
-                        <span className="detail-variant-label">Sizes:</span>
-                        <div className="detail-variant-badges">
-                          {sizes.map((v, i) => (
-                            <span key={i} className="badge-size">{v.value}</span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {colors.length > 0 && (
-                      <div className="detail-variant-group">
-                        <span className="detail-variant-label">Colors:</span>
-                        <div className="detail-variant-badges">
-                          {colors.map((v, i) => (
-                            <span key={i} className="badge-color">
-                              <span className="badge-color-dot" style={{ background: colorNameMap[v.value?.toLowerCase()] || v.value }} />
-                              {v.value}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
+              {variantGroups.map((group) => (
+                <div key={group.label} className="detail-variant-group">
+                  <span className="detail-variant-label">{group.label.charAt(0).toUpperCase() + group.label.slice(1)}:</span>
+                  <div className="detail-variant-badges">
+                    {group.variants.map((v, i) => (
+                      v.type === "size" ? (
+                        <span key={i} className="badge-size">{v.value}</span>
+                      ) : v.type === "color" ? (
+                        <span key={i} className="badge-color">
+                          <span className="badge-color-dot" style={{ background: colorNameMap[v.value?.toLowerCase()] || v.value }} />
+                          {v.value}
+                        </span>
+                      ) : (
+                        <span key={i} className="badge-size">{v.value}</span>
+                      )
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
           <button className="add-to-cart-btn" onClick={openModal} disabled={product.stock === 0}>
             <FaShoppingCart /> Add to Cart
           </button>
-
-          {(() => {
-            const otherVariants = product.variant?.filter((v) => v.type === "common" || v.type === "custom" || (!v.type && v.key));
-            return otherVariants?.length > 0 && (
-              <div className="features-section">
-                <h3>Details</h3>
-                <ul className="features-list">
-                  {otherVariants.map((v, i) => (
-                    <li key={i}>
-                      <strong>{v.type === "custom" ? v.key : "Others"}:</strong>{" "}
-                      {v.value?.split(",").map((s) => s.trim()).filter(Boolean).join(", ")}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })()}
 
           {product.features?.length > 0 && (
             <div className="features-section">
@@ -215,30 +201,45 @@ function ProductDetail() {
                   ₹ {discountedPrice.toLocaleString()}
                 </p>
 
-                {product.variant?.length > 0 && (
+                {variantGroups.length > 0 && (
                   <div className="detail-modal-variants">
-                    <h3>Select Variant</h3>
-                    <div className="detail-modal-variant-list">
-                      {product.variant.map((v, i) => (
-                        <button
-                          key={i}
-                          type="button"
-                          className={`detail-modal-variant-btn ${JSON.stringify(modalVariant) === JSON.stringify(v) ? "active" : ""}`}
-                          onClick={() => setModalVariant(v)}
-                        >
-                          {v.type === "size" && v.value}
-                          {v.type === "color" && (
-                            <>
-                              <span className="color-dot" style={{ background: colorNameMap[v.value?.toLowerCase()] || v.value }} />
-                              {v.value}
-                            </>
-                          )}
-                          {v.type === "common" && v.value}
-                          {v.type === "custom" && `${v.key}: ${v.value?.split(",").map(s => s.trim()).filter(Boolean).join(", ")}`}
-                          {!v.type && (v.value || v.size || v.color)}
-                        </button>
-                      ))}
-                    </div>
+                    <h3>Select Variants</h3>
+                    {variantGroups.map((group) => (
+                      <div key={group.label} className="detail-modal-variant-group">
+                        <span className="detail-modal-variant-group-label">
+                          {group.label.charAt(0).toUpperCase() + group.label.slice(1)}
+                        </span>
+                        <div className="detail-modal-variant-list">
+                          {group.variants.map((v, i) => {
+                            const isSelected = modalSelections[group.label] === v;
+                            return (
+                              <button
+                                key={i}
+                                type="button"
+                                className={`detail-modal-variant-btn ${isSelected ? "active" : ""}`}
+                                onClick={() =>
+                                  setModalSelections((prev) => ({
+                                    ...prev,
+                                    [group.label]: v,
+                                  }))
+                                }
+                              >
+                                {v.type === "size" && v.value}
+                                {v.type === "color" && (
+                                  <>
+                                    <span className="color-dot" style={{ background: colorNameMap[v.value?.toLowerCase()] || v.value }} />
+                                    {v.value}
+                                  </>
+                                )}
+                                {v.type === "common" && v.value}
+                                {v.type === "custom" && v.value}
+                                {!v.type && (v.value || v.size || v.color)}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
 
@@ -255,7 +256,7 @@ function ProductDetail() {
                   type="button"
                   className="detail-modal-add-btn"
                   onClick={handleAddToCart}
-                  disabled={product.variant?.length > 0 && Object.keys(modalVariant).length === 0}
+                  disabled={product.stock === 0 || variantGroups.length > 0 && !allGroupsSelected}
                 >
                   <FaShoppingCart /> Add to Cart
                 </button>

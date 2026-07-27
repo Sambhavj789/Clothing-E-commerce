@@ -280,6 +280,7 @@ function AdminProducts() {
       });
     }
 
+    const otherArr = Object.entries(otherMap).map(([key, values]) => ({ key, values }));
     setSizeSelected(sizes);
     setColorSelected(colors);
     setOtherVariants(otherArr.length > 0 ? otherArr : [{ key: "", values: [] }]);
