@@ -137,79 +137,6 @@
   font-weight: 600;
 }
 
-.variant-section h3 {
-  margin-bottom: 10px;
-  font-size: 16px;
-}
-
-.variant-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.variant-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border: 2px solid #e5e5e5;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
-  font-size: 14px;
-  transition: 0.3s;
-}
-
-.variant-btn.active {
-  border-color: #252529;
-  background: #f5f5f5;
-}
-
-.variant-color-dot {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: inline-block;
-}
-
-.variant-size-label {
-    font-weight: 700;
-    font-size: 14px;
-}
-
-.quantity-selector {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  width: fit-content;
-  overflow: hidden;
-}
-
-.quantity-selector button {
-  width: 40px;
-  height: 40px;
-  border: none;
-  background: #f5f5f5;
-  font-size: 18px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.quantity-selector button:hover {
-  background: #252529;
-  color: white;
-}
-
-.quantity-selector span {
-  width: 50px;
-  text-align: center;
-  font-size: 16px;
-  font-weight: 600;
-}
-
 .add-to-cart-btn {
   display: flex;
   align-items: center;
@@ -259,6 +186,206 @@
 
 .features-list li strong {
   color: #18181b;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.detail-modal {
+    background: #fff;
+    border-radius: 16px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    z-index: 10;
+    transition: 0.2s;
+}
+
+.modal-close:hover {
+    background: #e5e5e5;
+}
+
+.detail-modal-body {
+    display: flex;
+    gap: 24px;
+    padding: 32px;
+}
+
+.detail-modal-image {
+    width: 280px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.detail-modal-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.detail-modal-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.detail-modal-info h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.detail-modal-price {
+    font-size: 22px;
+    font-weight: 800;
+    color: #111;
+    margin: 0;
+}
+
+.detail-modal-variants h3,
+.detail-modal-quantity h3 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+    margin: 0 0 8px;
+}
+
+.detail-modal-variant-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.detail-modal-variant-btn {
+    padding: 8px 18px;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.detail-modal-variant-btn:hover {
+    border-color: #252529;
+}
+
+.detail-modal-variant-btn.active {
+    border-color: #252529;
+    background: #252529;
+    color: #fff;
+}
+
+.color-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.detail-modal-qty-box {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: fit-content;
+    overflow: hidden;
+}
+
+.detail-modal-qty-box button {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: #f5f5f5;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.detail-modal-qty-box button:hover {
+    background: #252529;
+    color: #fff;
+}
+
+.detail-modal-qty-box span {
+    width: 44px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.detail-modal-add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    background: #252529;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: auto;
+}
+
+.detail-modal-add-btn:hover {
+    background: #000;
+}
+
+.detail-modal-add-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+    .detail-modal-body {
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .detail-modal-image {
+        width: 100%;
+    }
 }
 
 @media (max-width: 900px) {
