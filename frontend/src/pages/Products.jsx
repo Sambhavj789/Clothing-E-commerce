@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../utils/api";
 import productCSS from "./Products.module.css";
-import { FaRegHeart, FaShoppingCart } from "react-icons/fa";
-import { useUser } from "../context/UserContext";
-import toast from "react-hot-toast";
+import { FaRegHeart } from "react-icons/fa";
 
 function Product() {
   const [productData, setProductData] = useState([]);
@@ -15,7 +13,6 @@ function Product() {
   const [priceRange, setPriceRange] = useState(5000);
   const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("recommended");
-  const { user } = useUser();
   const IMAGE_API = "http://localhost:4000/uploads/";
 
   async function getData(p = page) {
@@ -41,24 +38,6 @@ function Product() {
       }
     } catch (err) {
       console.log(err);
-    }
-  }
-
-  async function handleAddToCart(e, productId) {
-    e.preventDefault();
-    e.stopPropagation();
-    try {
-      const response = await api.post("/cart/add", {
-        productId,
-        quantity: 1,
-        variant: {},
-      });
-      if (response.data.success) {
-        toast.success("Added to cart!");
-      }
-    } catch (err) {
-      const msg = err.response?.data?.message || "Please login to add items to cart";
-      toast.error(msg);
     }
   }
 
@@ -213,13 +192,6 @@ function Product() {
                   </p>
                 </div>
               </Link>
-              <button
-                type="button"
-                className={productCSS["cart-add-btn"]}
-                onClick={(e) => handleAddToCart(e, product._id)}
-              >
-                <FaShoppingCart /> Add to Cart
-              </button>
             </div>
           ))}
         </div>

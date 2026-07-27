@@ -92,7 +92,7 @@ function Cart() {
             cartItems.map((item) => (
               <div className="cartCard" key={item.productId?._id || item._id}>
                 <img
-                  src={IMAGE_API + item.productId?.images?.[0] || "https://via.placeholder.com/120"}
+                  src={item.productId?.images?.[0] ? IMAGE_API + item.productId.images[0] : "https://via.placeholder.com/120"}
                   alt={item.productId?.title}
                 />
 

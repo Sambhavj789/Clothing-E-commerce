@@ -153,7 +153,7 @@ function ProductDetail() {
           <button
             className="add-to-cart-btn"
             onClick={handleAddToCart}
-            disabled={product.stock === 0}
+            disabled={product.stock === 0 || (product.variant?.length > 0 && Object.keys(selectedVariant).length === 0)}
           >
             <FaShoppingCart /> Add to Cart
           </button>
