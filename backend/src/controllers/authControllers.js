@@ -96,6 +96,23 @@ async function logout(req, res) {
   });
 }
 
-module.exports = { register, login, getMe, logout };
+async function updateProfile(req, res) {
+  const userId = req.user._id;
+  const { name, address, contactNumber } = req.body;
+  const updateData = {};
+  if (name) updateData.name = name;
+  if (address) updateData.address = address;
+  if (contactNumber) updateData.contactNumber = contactNumber;
+  if (req.file) updateData.profilePic = req.file.filename;
+
+  const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+  return res.send({
+    success: true,
+    message: "Profile updated successfully",
+    data: updatedUser,
+  });
+}
+
+module.exports = { register, login, getMe, logout, updateProfile };
 // Products : Add,Delete,Get,Update
 // Order: Add,Get,Update

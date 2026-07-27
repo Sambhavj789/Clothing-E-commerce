@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import hero1 from "../assets/image.png";
 import hero2 from "../assets/image3.png";
@@ -22,6 +23,7 @@ const slides = [
 ];
 
 function Home() {
+  const navigate = useNavigate();
   return (
     <section className="home-section">
       <div className="hero-slider">
@@ -35,7 +37,7 @@ function Home() {
               <h1>{slide.title}</h1>
               <p>{slide.subtitle}</p>
 
-              <button>{slide.button}</button>
+              <button onClick={() => navigate("/products")}>{slide.button}</button>
             </div>
           </div>
         ))}

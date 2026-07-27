@@ -19,6 +19,8 @@ const orderSchema = mongoose.Schema(
     },
 
     shippingAddress: String,
+    contactNumber: String,
+    alternateNumber: String,
     paymentStatus: { type: String, enum: ["pending", "completed"] },
 
     totalOrderValue: Number,

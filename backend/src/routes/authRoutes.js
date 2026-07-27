@@ -4,9 +4,11 @@ const {
   login,
   getMe,
   logout,
+  updateProfile,
 } = require("../controllers/authControllers");
 const asyncHandler = require("../utils/asyncHandler");
 const authMiddleware = require("../middlewares/authMiddleware");
+const upload = require("../utils/upload");
 
 const router = express.Router();
 
@@ -17,5 +19,7 @@ router.post("/login", asyncHandler(login));
 router.get("/me", asyncHandler(authMiddleware), asyncHandler(getMe));
 
 router.get("/logout", asyncHandler(logout));
+
+router.put("/update", asyncHandler(authMiddleware), upload.single("profilePic"), asyncHandler(updateProfile));
 
 module.exports = router;

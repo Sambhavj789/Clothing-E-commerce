@@ -14,8 +14,11 @@ async function addToCart(req, res) {
   const userId = req.user._id;
   const { productId, quantity, variant } = req.body;
   const userData = await User.findById(userId);
+  const variantStr = JSON.stringify(variant || {});
   const existingIndex = userData.cart.findIndex(
-    (item) => item.productId.toString() === productId,
+    (item) =>
+      item.productId.toString() === productId &&
+      JSON.stringify(item.variant || {}) === variantStr,
   );
   if (existingIndex > -1) {
     userData.cart[existingIndex].quantity += quantity || 1;
@@ -23,6 +26,7 @@ async function addToCart(req, res) {
     userData.cart.push({ productId, quantity: quantity || 1, variant: variant || {} });
   }
   await userData.save();
+  await userData.populate("cart.productId");
   return res.send({
     success: true,
     message: "Item added to cart",
@@ -32,16 +36,15 @@ async function addToCart(req, res) {
 
 async function updateCartItem(req, res) {
   const userId = req.user._id;
-  const { productId, quantity } = req.body;
+  const { cartItemId, quantity } = req.body;
   const userData = await User.findById(userId);
-  const item = userData.cart.find(
-    (item) => item.productId.toString() === productId,
-  );
+  const item = userData.cart.id(cartItemId);
   if (!item) {
     return res.status(404).send({ success: false, message: "Item not found in cart" });
   }
   item.quantity = quantity;
   await userData.save();
+  await userData.populate("cart.productId");
   return res.send({
     success: true,
     message: "Cart updated",
@@ -51,12 +54,13 @@ async function updateCartItem(req, res) {
 
 async function removeFromCart(req, res) {
   const userId = req.user._id;
-  const { productId } = req.body;
+  const { cartItemId } = req.body;
   const userData = await User.findById(userId);
   userData.cart = userData.cart.filter(
-    (item) => item.productId.toString() !== productId,
+    (item) => item._id.toString() !== cartItemId,
   );
   await userData.save();
+  await userData.populate("cart.productId");
   return res.send({
     success: true,
     message: "Item removed from cart",

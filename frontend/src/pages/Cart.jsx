@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Cart.css";
 import { FaTrash, FaShoppingCart, FaArrowLeft } from "react-icons/fa";
 import { useUser } from "../context/UserContext";
@@ -7,6 +7,7 @@ import api from "../utils/api";
 
 function Cart() {
   const { user } = useUser();
+  const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const IMAGE_API = "http://localhost:4000/uploads/";
@@ -25,10 +26,10 @@ function Cart() {
     }
   }
 
-  async function handleQuantityChange(productId, newQuantity) {
+  async function handleQuantityChange(cartItemId, newQuantity) {
     if (newQuantity < 1) return;
     try {
-      const response = await api.put("/cart/update", { productId, quantity: newQuantity });
+      const response = await api.put("/cart/update", { cartItemId, quantity: newQuantity });
       if (response.data.success) {
         setCartItems(response.data.data);
       }
@@ -37,9 +38,9 @@ function Cart() {
     }
   }
 
-  async function handleRemove(productId) {
+  async function handleRemove(cartItemId) {
     try {
-      const response = await api.delete("/cart/remove", { data: { productId } });
+      const response = await api.delete("/cart/remove", { data: { cartItemId } });
       if (response.data.success) {
         setCartItems(response.data.data);
       }
@@ -83,10 +84,13 @@ function Cart() {
       <div className="cartContainer">
         <div className="cartItems">
           {cartItems.length === 0 ? (
-            <div className="empty-cart-message">
-              <FaShoppingCart className="empty-cart-icon" />
+            <div className="empty-cart">
+              <div className="empty-cart-illustration">
+                <FaShoppingCart />
+              </div>
               <h2>Your Cart is Empty</h2>
-              <Link to="/products" className="login-redirect-btn">Continue Shopping</Link>
+              <p>Looks like you haven't added anything to your cart yet. Browse our collection and find something you love!</p>
+              <Link to="/products" className="empty-cart-btn">Start Shopping</Link>
             </div>
           ) : (
             cartItems.map((item) => (
@@ -122,12 +126,12 @@ function Cart() {
 
                 <div className="cartActions">
                   <div className="quantityBox">
-                    <button type="button" onClick={() => handleQuantityChange(item.productId?._id, item.quantity - 1)}>-</button>
+                    <button type="button" onClick={() => handleQuantityChange(item._id, item.quantity - 1)}>-</button>
                     <span>{item.quantity}</span>
-                    <button type="button" onClick={() => handleQuantityChange(item.productId?._id, item.quantity + 1)}>+</button>
+                    <button type="button" onClick={() => handleQuantityChange(item._id, item.quantity + 1)}>+</button>
                   </div>
 
-                  <button type="button" onClick={() => handleRemove(item.productId?._id)}>
+                  <button type="button" onClick={() => handleRemove(item._id)}>
                     <FaTrash />
                   </button>
                 </div>
@@ -162,7 +166,7 @@ function Cart() {
               <span>₹ {subtotal.toLocaleString()}</span>
             </div>
 
-            <button className="checkoutBtn">Proceed To Checkout</button>
+            <button className="checkoutBtn" onClick={() => navigate("/checkout")}>Proceed To Checkout</button>
           </div>
         )}
       </div>

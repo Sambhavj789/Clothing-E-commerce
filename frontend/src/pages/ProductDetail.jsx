@@ -218,7 +218,7 @@ function ProductDetail() {
                         </span>
                         <div className="detail-modal-variant-list">
                           {group.variants.map((v, i) => {
-                            const isSelected = modalSelections[group.label] === v;
+                            const isSelected = modalSelections[group.label]?.value === v.value;
                             return (
                               <button
                                 key={i}

@@ -16,7 +16,7 @@ async function getAllOrders(req, res) {
 async function getUserOrders(req, res) {
   const userData = req.user;
   const userId = userData._id;
-  const userOrders = await Order.find({ userId: userId }).populate("items");
+  const userOrders = await Order.find({ userId: userId }).populate("items.productId");
   return res.send({
     success: true,
     message: "Success",
@@ -31,20 +31,33 @@ async function createOrder(req, res) {
   const {
     items,
     shippingAddress,
+    contactNumber,
+    alternateNumber,
     totalOrderValue,
     payementMode,
     paymentStatus,
   } = data;
+
+  if (!shippingAddress || !contactNumber || !items?.length) {
+    return res.status(400).send({ success: false, message: "Shipping address, contact number, and items are required" });
+  }
+
   const newOrder = new Order({
     userId,
     items,
     shippingAddress,
+    contactNumber,
+    alternateNumber: alternateNumber || "",
     totalOrderValue,
-    payementMode,
-    paymentStatus,
+    payementMode: payementMode || "COD",
+    paymentStatus: paymentStatus || "pending",
     deliveredAt: null,
   });
   const newOrderData = await newOrder.save();
+
+  const User = require("../models/userModel");
+  await User.findByIdAndUpdate(userId, { $set: { cart: [] } });
+
   return res.send({
     success: true,
     message: "Order Placed Successfully",

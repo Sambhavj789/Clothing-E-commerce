@@ -23,6 +23,7 @@ const userSchema = mongoose.Schema(
     },
     address: { type: String },
     contactNumber: { type: Number },
+    profilePic: { type: String },
   },
   { timestamps: true },
 );
