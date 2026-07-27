@@ -98,8 +98,12 @@ function Cart() {
 
                 <div className="cartInfo">
                   <h3>{item.productId?.title || "Product"}</h3>
-                  {item.variant?.size && <p>Size: {item.variant.size}</p>}
-                  {item.variant?.color && <p>Color: {item.variant.color}</p>}
+                  {item.variant?.type === "size" && <p>Size: {item.variant.value}</p>}
+                  {item.variant?.type === "color" && <p>Color: {item.variant.value}</p>}
+                  {item.variant?.type === "custom" && <p>{item.variant.key}: {item.variant.value}</p>}
+                  {item.variant?.type === "common" && <p>{item.variant.value}</p>}
+                  {!item.variant?.type && item.variant?.size && <p>Size: {item.variant.size}</p>}
+                  {!item.variant?.type && item.variant?.color && <p>Color: {item.variant.color}</p>}
                   <p className="price">
                     ₹ {(item.productId?.price || 0).toLocaleString()}
                   </p>

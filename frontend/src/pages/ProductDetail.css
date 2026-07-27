@@ -166,11 +166,16 @@
   background: #f5f5f5;
 }
 
-.variant-color {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 1px solid #ddd;
+.variant-color-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.variant-size-label {
+    font-weight: 700;
+    font-size: 14px;
 }
 
 .quantity-selector {

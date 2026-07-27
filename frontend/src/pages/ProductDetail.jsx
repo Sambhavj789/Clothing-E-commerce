@@ -122,9 +122,22 @@ function ProductDetail() {
                     className={`variant-btn ${JSON.stringify(selectedVariant) === JSON.stringify(v) ? "active" : ""}`}
                     onClick={() => setSelectedVariant(v)}
                   >
-                    {v.color && <span className="variant-color" style={{ background: v.color }} />}
-                    {v.size && <span>{v.size}</span>}
-                    {v.value && <span>{v.value}</span>}
+                    {v.type === "size" && <span className="variant-size-label">{v.value}</span>}
+                    {v.type === "color" && (
+                      <>
+                        <span
+                          className="variant-color-dot"
+                          style={{
+                            background: v.value?.toLowerCase() === "white" ? "#fff" : v.value,
+                            border: "2px solid #e5e5e5",
+                          }}
+                        />
+                        <span>{v.value}</span>
+                      </>
+                    )}
+                    {v.type === "common" && <span>{v.value}</span>}
+                    {v.type === "custom" && <span>{v.key}: {v.value}</span>}
+                    {!v.type && <span>{v.value || v.size || v.color}</span>}
                   </button>
                 ))}
               </div>

@@ -255,13 +255,84 @@
 .variantRow {
     display: flex;
     gap: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .featureRow input,
 .variantRow input {
     flex: 1;
+    min-width: 120px;
+}
+
+.variantTypeSelect {
+    width: 110px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    background: var(--surface);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.sizeChips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.sizeChip {
+    padding: 6px 14px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.sizeChip:hover {
+    border-color: var(--primary);
+}
+
+.sizeChipActive {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.colorInputRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.colorInputRow input {
+    flex: 1;
+}
+
+.colorSwatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.customRow {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+}
+
+.customRow input {
+    flex: 1;
+    min-width: 100px;
 }
 
 .featureRow button,

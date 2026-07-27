@@ -24,7 +24,7 @@ function AdminProducts() {
   });
 
   const [features, setFeatures] = useState([{ key: "", value: "" }]);
-  const [variants, setVariants] = useState([{ key: "", value: "" }]);
+  const [variants, setVariants] = useState([{ type: "size", value: "" }]);
   const [categories, setCategories] = useState([]);
 
   function handleChange(e) {
@@ -50,17 +50,29 @@ function AdminProducts() {
   function handleVariantChange(index, field, value) {
     const updated = [...variants];
     updated[index][field] = value;
+    if (field === "type" && value !== "custom") {
+      updated[index].key = "";
+    }
     setVariants(updated);
   }
 
   function addVariant() {
-    setVariants([...variants, { key: "", value: "" }]);
+    setVariants([...variants, { type: "size", value: "" }]);
   }
 
   function removeVariant(index) {
     if (variants.length === 1) return;
     setVariants(variants.filter((_, i) => i !== index));
   }
+
+  const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
+  const colorNameMap = {
+    red: "#EF4444", blue: "#3B82F6", green: "#22C55E", black: "#000000",
+    white: "#FFFFFF", yellow: "#EAB308", purple: "#A855F7", pink: "#EC4899",
+    orange: "#F97316", brown: "#92400E", grey: "#6B7280", gray: "#6B7280",
+    navy: "#1E3A5F", beige: "#F5F5DC", cream: "#FFFDD0", maroon: "#800000",
+    teal: "#14B8A6", gold: "#D4AF37", silver: "#C0C0C0",
+  };
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -78,7 +90,7 @@ function AdminProducts() {
     }
 
     formData.append("features", JSON.stringify(features.filter((f) => f.key)));
-    formData.append("variant", JSON.stringify(variants.filter((v) => v.key)));
+    formData.append("variant", JSON.stringify(variants.filter((v) => v.value)));
 
     try {
       let response;
@@ -112,7 +124,7 @@ function AdminProducts() {
           oldImages: [],
         });
         setFeatures([{ key: "", value: "" }]);
-        setVariants([{ key: "", value: "" }]);
+        setVariants([{ type: "size", value: "" }]);
 
         setIsMenuOpen(false);
 
@@ -190,17 +202,13 @@ function AdminProducts() {
 
     if (product.variant?.length) {
       const mapped = product.variant.map((v) => {
-        if (v.key !== undefined) return v;
-        const obj = { key: "", value: "" };
-        for (let k in v) {
-          if (!obj.key) obj.key = k;
-          else obj.value = v[k];
-        }
-        return obj;
+        if (v.type) return v;
+        const hasKey = v.key && v.key !== "size" && v.key !== "color";
+        return { type: hasKey ? "custom" : (v.key || "common"), key: hasKey ? v.key : "", value: v.value || v.size || v.color || "" };
       });
       setVariants(mapped);
     } else {
-      setVariants([{ key: "", value: "" }]);
+      setVariants([{ type: "size", value: "" }]);
     }
 
     setIsMenuOpen(true);
@@ -344,21 +352,81 @@ function AdminProducts() {
               </div>
 
               <div className={`${style.formRow} ${style.section}`}>
-                <h3>Variants (e.g. Size: M, Color: Red)</h3>
+                <h3>Variants</h3>
                 {variants.map((variant, index) => (
                   <div key={index} className={style.variantRow}>
-                    <input
-                      type="text"
-                      placeholder="Key (e.g. Size, Color)"
-                      value={variant.key}
-                      onChange={(e) => handleVariantChange(index, "key", e.target.value)}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Value (e.g. M, Red)"
-                      value={variant.value}
-                      onChange={(e) => handleVariantChange(index, "value", e.target.value)}
-                    />
+                    <select
+                      value={variant.type}
+                      onChange={(e) => handleVariantChange(index, "type", e.target.value)}
+                      className={style.variantTypeSelect}
+                    >
+                      <option value="size">Size</option>
+                      <option value="color">Color</option>
+                      <option value="common">Common</option>
+                      <option value="custom">Custom</option>
+                    </select>
+
+                    {variant.type === "size" && (
+                      <div className={style.sizeChips}>
+                        {sizeOptions.map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            className={`${style.sizeChip} ${variant.value === s ? style.sizeChipActive : ""}`}
+                            onClick={() => handleVariantChange(index, "value", s)}
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {variant.type === "color" && (
+                      <div className={style.colorInputRow}>
+                        <input
+                          type="text"
+                          placeholder="Color name (e.g. Red)"
+                          value={variant.value}
+                          onChange={(e) => handleVariantChange(index, "value", e.target.value)}
+                        />
+                        {variant.value && (
+                          <span
+                            className={style.colorSwatch}
+                            style={{
+                              background: colorNameMap[variant.value.toLowerCase()] || variant.value,
+                              border: variant.value.toLowerCase() === "white" ? "1px solid #ddd" : "none",
+                            }}
+                          />
+                        )}
+                      </div>
+                    )}
+
+                    {variant.type === "common" && (
+                      <input
+                        type="text"
+                        placeholder="Value"
+                        value={variant.value}
+                        onChange={(e) => handleVariantChange(index, "value", e.target.value)}
+                      />
+                    )}
+
+                    {variant.type === "custom" && (
+                      <div className={style.customRow}>
+                        <input
+                          type="text"
+                          placeholder="Key (e.g. Material)"
+                          value={variant.key}
+                          onChange={(e) => handleVariantChange(index, "key", e.target.value)}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Value (e.g. Cotton)"
+                          value={variant.value}
+                          onChange={(e) => handleVariantChange(index, "value", e.target.value)}
+                        />
+                      </div>
+                    )}
+
                     <button type="button" onClick={addVariant}><FaPlus /></button>
                     {variants.length > 1 && (
                       <button type="button" onClick={() => removeVariant(index)} style={{ background: "#dc2626" }}><FaTrash /></button>
